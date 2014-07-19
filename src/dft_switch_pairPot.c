@@ -76,6 +76,9 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
       case PAIR_SW:
         u = uSW(r,param1,param2,param3);
         break;
+      case PAIR_BSpline:
+        u = uBSpline(r,param1);
+        break;
       default:
          if (Iwrite_screen !=SCREEN_NONE)printf("problems with your selection of typePairPotin pairPot_switch: typePairPot=%d\n",typePairPot);
          exit(-1);
@@ -120,6 +123,9 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,
         break;
       case PAIR_SW:
         uSW_setparams(context,i,j,param1,param2,param3);
+        break;
+      case PAIR_BSpline:
+        uBSpline_setparams(context,i,j,param1);
         break;
       default:
         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPotparams_switch typePairPot=%d\n",typePairPot);

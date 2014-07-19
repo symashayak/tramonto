@@ -342,7 +342,7 @@ extern "C" {
 #define PAIR_r12andYUKAWA_CS  7
 #define PAIR_r18andYUKAWA_CS  8
 #define PAIR_rNandYUKAWA_CS   9
-
+#define PAIR_BSpline          10
 
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0

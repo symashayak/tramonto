@@ -1,0 +1,26 @@
+/*! \file 
+\brief 3D 1element (point) surfaces. 
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test for 1elem surface type.  Note that all nodes should be designated
+as fluid nodes with this type of surface.  However external fields or charges may be applied. 
+This case has only a surface charge.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6
+   - adsorption[0]=28.6549
+   - adsorption[1]=28.9549 
+   - adsorption[2]=374.359 
+   - surf_ex_energy=0.0757267
+   .
+*/
+

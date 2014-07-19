@@ -1,0 +1,8 @@
+#
+# This cmake invocation works for Linux
+# with Trilinos installed in /home/jmwille/TramontoTestHarness/Tri10.2
+#
+cmake \
+-DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+..
+

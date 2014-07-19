@@ -1,0 +1,2811 @@
+%documentstyle[aps]{revtex}                  % galley proofs: 1 column/page
+%\documentstyle[epsf,twocolumn,aps,floats]{revtex}     %  just like the real thing
+%\documentstyle[preprint,aps]{revtex}                   % preprint style
+\documentclass[10pt,onecolumn]{article}
+\usepackage{graphics}  % graphic defaults
+
+\bibliographystyle{unsrt}
+
+\input{epsf.sty}
+\special{papersize=8.5in,11in}
+%\textwidth 16.8cm
+\textwidth 7.0in
+\textheight 9.0in
+%\headheight 0.0cm
+\topmargin -0.5in
+\oddsidemargin -1.0cm
+\evensidemargin 0.0cm
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\begin{document}
+% \draft command makes pacs numbers print
+%\draft
+
+\title{
+   USER GUIDE FOR TRAMONTO v2.1: A Density Functional Theory code for
+   inhomogeneous fluids at equilibrium or steady state}
+
+   % repeat the \author\address pair as needed
+\date{\today}
+\maketitle
+%\protect\begin{abstract}
+%
+
+\tableofcontents
+
+\vfill
+\break
+
+\section{Abstract}
+ This users guide is meant to introduce the new user to the input files
+ needed to run Tramonto as well as the output files produced by the code.
+ For help on installation of Tramonto and
+ necessary libraries, see the Installation Guide found on the Tramonto home
+ page: www.software.sandia.gov/tramonto.
+ 
+\section{{\it dft\_globals\_const.h}}
+All shared variable, defined constants, and static array sizes for Tramonto are found in
+{\it Tramonto/src/ dft\_globals\_const.h}.  Editing this file to increase static variables can be done.  However, it will require corresponding adjustment of the file specific header files.  This can be done either manually or using the makeheaders utility (located in {\it Tramonto/Utilities}.  For
+further instructions on manipulating header files see instructions on the Tramonto Documentation
+web pages.  The current presets for static array variables are summarized here so that input files will
+be designed within the allowed bounds.
+\begin{itemize}
+\item{NCOMP\_MAX=5:  Maximum number of fluid components.}
+\item{NDIM\_MAX=3: Maximum number of dimensions.}
+\item{NWALL\_MAX=600: Maximum number of surfaces (or fixed atoms) in the calculation.}
+\item{NWALL\_MAX\_TYPE=50: Maximum number of different kinds of surfaces (or fixed atoms) in the calculation.}
+\item{NBOND\_MAX=4: Maximum number of bonds for any given atom.}
+\item{NSTEPS\_MAX=10: Maximum number of segments in an initial guess built from a stepped density function.}
+\item{MAX\_ROUGH\_BLOCK=100: Maximum number of rough patches on any given surface.}
+\item{NZONE\_MAX=10: Maximum number of numerical integration stencil zones.}
+\item{N\_NZCR\_MAX=200: Maximum number of non-zeros in a direct correlation function for CMS polymer DFT calculations}
+\item{NBLOCK\_MAX=5: Maximum number of polymer block types.}
+\item{NMER\_MAX=100: Maximum number of polymer segments.}
+\end{itemize}
+
+\vfill
+\break
+ 
+\section{{\it dft\_input.dat}}
+\label{sec:input}
+The default primary input file for Tramonto is called {\it dft\_input.dat}.\footnote{Note that the user can give this file any name, but the job must then be launched by typing:  dft input\_filename.}
+It contains most of the parameters that define a given run.  However,
+depending on the problem of interest other input files (described below) that may be needed are:
+\begin{itemize}
+\item{{\it dft\_surfaces.dat}}
+\item{{\it poly\_file}}
+\item{{\it Cr\_file}}
+\end{itemize}
+
+In {\it dft\_input.dat}, all lines containing data
+begin with an @ symbol signaling the code to begin
+reading data.  Arbitrary numbers of blank lines or comments may be inserted following the data since
+everything after the needed data is treated as a comment.  However, note that in most cases
+TRAMONTO needs to read in arrays in their entirety.
+Numerous comments are included in the {\it
+dft\_input.dat}
+file.  These comments are meant to assist the user in setting up the
+input file.
+
+The input data is split into different logical categories
+described below. After the {\it dft\_input.dat}
+file is read in, it is echoed in the file {\it dft\_out.lis}.  When the code isn't behaving
+properly, first check that the code has read the input file as expected.\footnote{ Note that the user does not need to make any modifications to the input file to run in parallel.}
+Some degree of error checking for conflicting input is built into the code;  however, a complete cross check of parameters is not guaranteed.  Therefore, the user is encouraged to double check input files before submitting jobs.
+
+
+\vfill
+\break
+
+%check text below!!!
+
+\subsection{DIMENSION PARAMETERS}
+{\bf
+This section defines what kind of dimensions will be set in the input file as well
+as a maximum allowable external field.
+All calculations in Tramonto are performed in reduced units.  All input parameters are reduced
+by the reference values entered here as summarized in Table~\ref{tab:dimensionless}.  
+
+In the first example shown below, all variables are to be entered in
+reduced units as indicated by setting parameters $<0$.
+In the second example, the reference
+length is 3 Angstroms, the  reference density
+is 18.456995 (units of $(mol/L)/\sigma^{-3}$), 
+the temperature is 298 K, and
+the reference dielectric constant is 80.
+}
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype}
+
+{\it Length\_ref(real) \ \  Density\_ref(real) \ \  Temp(real) \ \  Dielec\_ref(real) \ \   VEXT\_MAX(real) }
+
+\noindent==========================================================
+
+
+{\bf Example 1}
+
+\begin{verbatim}
+*************** DIMENSION PARAMETERS ************************
+@  -1. -1. -1. -1. 10.     Length_ref Density_ref Temp Dielec_ref VEXT_MAX
+*****************************************************************
+\end{verbatim}
+
+{\bf Example 2}
+
+\begin{verbatim}
+*************** DIMENSION PARAMETERS ************************
+@  3.0 18.456995 298. 80. 10.     Length_ref Density_ref Temp Dielec_ref VEXT_MAX
+*****************************************************************
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{{\it Length\_ref} }:
+The characteristic length in the problem of interest. Typical options are:
+\begin{itemize}
+\item{reduced units to be entered ($Length\_ref<0.0$).}
+\item{size of one atomic fluid species in the problem.}
+\end{itemize}
+%This should usually be set to the diameter of one of the fluid species of interest.
+%Note that all length entries following in the {\it dft\_input.dat} file should
+%be in the same units as this characteristic length.  If $Length\_ref=-1.$,
+%all length parameters following should be entered in reduced units relative
+%to some $\sigma_{ref}$.  If $Length\_ref > 0$, the code immediately reduces all
+%length parameters, $L$ ({\it Size\_x, Esize\_x, WallPos, WallParam, Sigma\_ff, Cut\_ff, Dielec\_x,
+%X\_1D\_bc, X\_const\_mu, Pore\_rad\_R\_IC, Lseg\_IC}, and {\it Thickness}),
+%by  $L/Length\_ref$.  In addition, the parameter
+%{\it Elec\_param\_w} is scaled by $ Elec\_param\_w \times Length\_ref^2$ if
+%$Type\_bc\_elec=2$ because in this case a charge per unit area is entered.
+
+\vspace{0.1in}
+\noindent{{\it Density\_ref}}: The reference density entered here should be the ratio of
+\#[units of interest]/1[$\sigma^{-3}$ units] where options are:
+\begin{itemize}
+\item{reduced units entered for all density parameters ($Density\_ref<0.0$).}
+\item{real units of g/cc, Molar, etc.}
+\end{itemize}
+%and dimensionless (Density\_ref=-1).  For a conversion from g/cc to the number
+%density, both the characteristic size and the molecular mass of the species
+%of interest will be needed.  For a conversion from Molar to number density,
+%only the characteristic size is needed.  Because the options vary widely,
+%the user is required to compute this conversion factor manually.  Given that
+%$Density\_ref > 0$, all densities ({\it Rho\_w, Rho\_b, Rho\_b\_LBB, Rho\_b\_RTF,
+%Scale\_fac})
+%that follow in the code will be immediately
+%reduced to $\rho/Density\_ref$.
+
+\vspace{0.1in}
+\noindent{{\it Temp}}: Temperature options:
+\begin{itemize}
+\item{reduced units for energy parameters ($Temp<0.0$).}
+\item{Temperature in Kelvin units.}
+\end{itemize}
+%in Kelvin.  Or if set to -1, this
+%parameter indicates that all energy parameters ({\it Eps\_ff} etc) will be
+%entered in units of $\epsilon/kT$. If $Temp>0$, the energy parameters
+%({\it Eps\_ff, Eps\_ww, Eps\_wf, Vext\_membrane}) should
+%be entered as $\epsilon/k$, and they will be immediately reduced to the kT
+%units of the code.  Also, if $Temp>0$, the electrostatic potential
+%parameters ({\it Elec\_param\_w} if $Type\_bc\_elec=1$, {\it Elec\_pot\_LBB, Elec\_pot\_RTF}) should be entered in mV units.  The code then converts to
+%units of $\psi e/kT$.  
+
+\vspace{0.1in}
+\noindent{{\it Dielec\_ref}}: The reference dielectric constant. Options are:
+\begin{itemize}
+\item{use standard assumption of 78.5 for the dielectric constant ($Dielec\_ref<0.0$).}
+\item{real dielectric constant ($Dielec\_ref>0.0$).}
+\end{itemize}
+
+%Normally one should choose the dielectric constant of the background
+%solvent (e.g. $\kappa=78.5$ for water).  Finally note that if the characteristic parameters are all -1.,
+%and we are doing a problem with the Coulombics turned on, it is assumed that
+%$T=298K$, $Length\_ref=4.25$ {\AA}, and $Dielec\_ref=78.5$ when computing a dimensionless
+%constant used in the code that is related to the plasma parameter.  The notation in the code
+%for this parameter and its definition are $Temp\_{elec}= 4\pi k T \kappa \epsilon_0 \sigma/e^2$
+%where $\epsilon_0=8.85419e-12 C^2 J^{-1} m^{-1}$,
+%$e=1.60219e^{-19}C$, and $k=1.3807e^{-23} J/K$.
+
+
+\vspace{0.1in}
+\noindent{{\it VEXT\_MAX}}: The maximum external field to be allowed in the
+problem.  If $V^{ext} > VEXT\_MAX$ at some nodes in the mesh then the residual equations are replaced with
+$\rho=0$ at those nodes.  This parameter should be entered relative to the temperature as
+$V/kT$.  This parameter improves numerical stability of the code by eliminating the need to converge very small densities (note that in an ideal gas $\rho({\bf r})/\rho_b=e^{-V/kT}$).
+\vfill
+\break
+
+\begin{table}[h]
+\begin{tabular}{|l|c|l|}
+\hline
+Ref parameter &  Normalization & Affected parameters\\ \hline
+{\it Length\_ref} &  x/{\it Length\_ref} & ({\it Size\_x, Esize\_x, WallPos, WallParam, Sigma\_ff,}\\
+&&  {\it Cut\_ff, Dielec\_x, X\_1D\_bc, X\_const\_mu,}\\
+&&  {\it  Pore\_rad\_R\_IC, Lseg\_IC}, and {\it Thickness} \\ \hline
+{\it Length\_ref} & $\sigma (Length\_ref)^2$ & {\it Elec\_param\_w} if $Type\_bc\_elec=2$ (charge per area) \\ \hline
+{\it Density\_ref} & $\rho/Density\_ref$ & {\it Rho\_w, Rho\_b, Rho\_b\_LBB, Rho\_b\_RTF,
+Scale\_fac} \\ \hline
+{\it Temp}& $(\epsilon/k)/Temp$ & {\it Eps\_ff, Eps\_ww, Eps\_wf, Vext\_membrane}  \\ \hline
+{\it Temp}& $\phi e/k(Temp)$ where $\phi$ is entered in mV units &  {\it Elec\_param\_w, Elec\_pot\_LBB, Elec\_pot\_RTF  } \\ \hline
+\end{tabular}
+\caption{Parameters that are adjusted by the various reference parameters as well as details of how various parameters are reduced.}
+\label{tab:dimensionless}
+\end{table}
+
+\vfill
+\break
+%\vspace{0.1in}
+\subsection{MESH PARAMETERS}
+{\bf
+These parameters are used to set up the variables controlling
+the size dimension and mesh spacing of the computational domains.
+The example below shows a 3-Dimensional (3D) problem where the
+computational domain is $4\sigma \times 4\sigma \times 1\sigma$
+in size and the mesh spacing is $0.2\sigma$ in each dimension.
+The system is a square channel with wall-boundary conditions
+on both sides in both the $x$ and $y$ coordinate and periodic
+boundary conditions in the $z$ coordinate.}
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype}
+
+{\it Ndim (int)
+
+Size\_x[idim] (real array)
+
+Esize\_x[idim] (real array)
+
+Type\_bc[idim=0][iside=0,1] (int array)
+
+Type\_bc[idim=1][iside=0,1] (int array)
+
+Type\_bc[idim=2][iside=0,1] (int array)
+}
+
+\noindent==========================================================
+
+
+{\bf Example}
+
+\begin{verbatim}
+*************** MESH PARAMETERS ************************
+@  3      Ndim
+@  4.0 4.0 1.0    Size_x(idim); idim=0,Ndim-1
+@  0.2 0.2 0.2  Esize_x(idim): idim=0,Ndim-1
+@   -1   -1    Type_bc(x0: left,right) (-1=wall,0=bulk,1=pbc,2=ref; 3=cont)
+@   -1   -1    Type_bc(x1: down,up) (-1=wall,0=bulk,1=pbc,2=ref; 3=cont)
+@    1    1    Type_bc(x2: back,front) (-1=wall,0=bulk,1=pbc,2=ref; 3=cont)
+
+*****************************************************************
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{{\it Ndim}}: The number of spatial dimensions in the problem of interest.
+
+%\vspace{0.1in}
+%\noindent{{\it iside}}: The index over the two sides of the computational domain
+%{\it iside=\{0,1\}}. The first index, 0, indicates the left ({\it idim=0}),
+%bottom ({\it idim=1}) or back ({\it idim=2}) of the domain while
+%the second index, 1, indicates the right, top, or front of the
+%domain respectively.
+
+\vspace{0.1in}
+\noindent{{\it Size\_x[idim]}}:  An array that stores the size of the computational
+domain in each dimension.  
+
+\vspace{0.1in}
+\noindent{\it Esize\_x[idim]}:  An array that stores the mesh spacing of the
+computational domain in each
+dimension.\footnote{ Note: Esize\_x need not be the same in all dimensions.
+However, it should be an integer divisor of $1 \sigma$.  Thus,
+possible values are
+0.5, 0.3333, 0.25, 0.2,0.16666, 0.125, 0.1,0.05 etc.}$^,$\footnote{
+Note: Practical values for the Esize\_x range are $0.05\sigma$ (1D and
+2D atomic fluids DFT), $0.1\sigma - 0.25\sigma$ (2D-3D atomic
+fluids DFT and polymer-DFT where molecular structure is of
+interest), or $0.25\sigma-0.5\sigma$ (for debugging and for 2D \& 3D
+polymer-DFT calculations where mesoscopic structures are of interest).
+}
+
+\vspace{0.1in}
+\noindent{\it Type\_bc}:  An array that stores the types of boundary conditions
+in each dimension.  Computation of residual and sometimes Jacobian entries requires
+computation of integrals that extend beyond the computational domain.  Assuming that the mesh points
+in any given dimension run from $0$ to $N$, and $k$ is an integration point beyond the domain boundary, options for the boundary conditions are:
+\begin{itemize}
+\item{-1: IN\_WALL: semi-infinite surface : set $\rho=0$ when integrating beyond boundary.}
+\item{0: IN\_BULK: constant bulk fluid: set $\rho_{N+k}=\rho_b$.}
+\item{1: PERIODIC: periodic boundary: set $\rho_{N+k}=\rho_k$.}
+\item{2: REFLECT: reflective boundary: set $\rho_{N+k}=\rho_{N-k}$. }
+\item{3: LAST\_NODE: continuation boundary: set $\rho_{N+k}=\rho_N$. }
+\end{itemize}
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{FUNCTIONAL SWITCH PARAMETERS}
+{\bf
+These are switches that control the density functional equations being studied
+for a given case.  The functional switches are separated into hard sphere,
+attractive, Coulombic, and polymer functionals.
+The switches that are currently available
+in the code are detailed below.  For details on the notation and functionals, read the cited references.  The example shows a case where the
+updated Rosenfeld functional is combined with second order short range
+corrections to an electrolyte fluid.}
+
+\vspace{0.1in}
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Type\_func (int)
+
+Type\_attr(int) \ \    Type\_pairPot(int)
+
+Type\_coul(int)
+
+Type\_poly(int)
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************ FUNCTIONAL SWITCHES ********************************
+@ 1            Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3)
+@ -1 0        Type_attr    Type_pairPot
+           		 	(Type_attr options: -1=No attractions, 0=strict MF, 1=Barker-Henderson MF) 
+            			(Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
+@ 1            Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections)
+@ -1           Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC)
+
+*******************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\noindent\dotfill
+
+
+\vspace{0.1in}
+\noindent{\it Type\_func}: The type of hard sphere functional
+desired for the calculation. Note that these are used in perturbation calculations where
+the reference system is a hard sphere fluid.  Options are:
+\begin{itemize}
+\item{-1: NONE: No hard sphere functional ($\Phi=0$).
+Do this for ideal gas, Poisson-Boltzmann, or CMS polymer calculations.}
+\item{0: FMT1: original FMT functional developed by Rosenfeld \cite{rosenfeld1}.}
+\item{1: FMT2: an updated FMT functional with corrected zero dimensional cross-over
+behavior \cite{rosenfeld2,rosenfeld3}}.
+\item{2: FMT3: the White Bear FMT functional \cite{roth}.}
+\end{itemize}
+
+Free energy densities of each of these hard-sphere functionals are summarized in
+Table~\ref{tab:fmteq}.  Note that for a complete description (including nonlocal densities, $n$ and ${\bf n_V}$, as well
+as an analysis of the functionals), the original references should be studied.
+\begin{table}[h]
+\center\begin{tabular}{|l|c|} \hline
+Label & Energy Density \\ \hline
+FMT1 & 
+$
+\Phi = -n_0 \ln(1-n_3)
+         + {{n_1n_2 - {\bf n}_{V1} \cdot {\bf n}_{V2}}\over{1-n_3}}
+       + {{1}\over{24\pi}} {{n_2^3}\over{(1-n_3)^2}}
+               - {{1}\over{8\pi}} {{n_2({\bf n}_{V2}\cdot{\bf n}_{V2})}\over{(1-n_3)^2}}.
+$ \\ 
+FMT2 &
+$
+\Phi = -n_0 \ln(1-n_3)
+         +  {{n_1n_2 - {\bf n}_{V1} \cdot {\bf n}_{V2}}\over{1-n_3}}  
+         + { { \left(n_2^2 - {\bf n}_{V2} \cdot {\bf n}_{V2} \right)^3}
+                         \over {24 \pi n_2^3 (1-n_3)^2} }.
+$ \\
+FMT3 &
+$
+\Phi = -n_0 \ln(1-n_3)
+         +  {{n_1n_2 - {\bf n}_{V1} \cdot {\bf n}_{V2}}\over{1-n_3}}  
+          +  \left(n_2^3 - 3n_2 {\bf n}_{V2} \cdot {\bf n}_{V2}  \right) 
+     {  {n_3 + \left(1-n_3 \right)^2 \ln \left(1-n_3\right)} \over {36 \pi n_3^2 \left(1-n_3\right)^2} }.
+$ \\ \hline
+\end{tabular}
+\caption{Description of FMT HS functionals}
+\label{tab:fmteq}
+\end{table}
+
+\noindent Note that it is relatively straightforward to implement new FMT based hard sphere functionals.  For directions, see the developer pages for Tramonto at http://software.sandia.gov/tramonto/developer\_physics.html. 
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\noindent{\it Type\_attr}: The type of perturbation functional to use for potential interactions
+longer range than hard spheres as defined in Table~\ref{tab:funcatt}.  Note that the $attr$ reflects the origins of this perturbation approach
+in attractive potentials of relatively short range (e.g. Lennard-Jones fluids), but the approach may be applied to other types of pair potentials as well (see description of {\it Type\_pairPot} below).  Options for {\it Type\_attr} are:
+\begin{itemize}
+\item{-1: NONE: No extended potentials to consider}
+\item{0: MFPAIR1: A simple strict Mean Field treatment of perturbation potential.  Use this option for CMS polymer calculations.}
+\item{1: MFPAIR2: A second strict Mean Field treatment of perturbation potential using a Barker-Henderson adjustment to the hard core reference fluid diameters.}
+\end{itemize}
+
+\begin{table}[h]
+\center\begin{tabular}{|c|c|c|} \hline
+LABEL & Excess Free Energy / or other use in functional & HS diameter \\ \hline
+MFPAIR1 &  $F_{att} =  \sum_i\sum_j\int {d{\bf r}} \int {d{\bf r'}}\ \rho_i({\bf r})\rho_j
+({\bf r'})u_{ij}^{att}(|r-r'|)$ & $d_{ij}=\sigma_{ij}$ \\ \hline
+MFPAIR1  & $c(r) =  c_{ref}+u_{att}$ & N/A \\ 
+($Type\_poly=CMS$) & where $c_{ref}$ is a repulsive contribution & \\
+& that may be obtained from PRISM theory & \\
+& or molecular simulation. & \\ \hline
+MFPAIR2& $F_{att} =  \sum_i\sum_j\int {d{\bf r}} \int {d{\bf r'}}\ \rho_i({\bf r})\rho_j({\bf r'})u_{ij}^{att}(|r-r'|)$& $d_{ij}=\int_0^{\sigma_{ij}} (1-e^{u_{ij}(r)})dr$  \\ \hline
+\end{tabular}
+\caption{Description of options for including extended potentials in DFT using either a hard sphere
+reference fluid or a hard chain reference fluid ($Type\_poly=CMS$).  Note that $u^{att}$ is the attractive part of the pair potential of interest.  At short range $u^{att}$ is set to some simple constant with the understanding that the hard sphere reference fluid captures the repulsive part of the interaction potential. In other words, $u_{ij}$ is 
+replaced with $u_{ij}^{att}+u_{ij}^{hs}$.  A cut and shift of the potential is always required because integration stencils in the calculations must be of finite range.  
+}
+\label{tab:funcatt}
+\end{table}
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\noindent{\it Type\_pairPot}:  The pair potential that will be used in conjunction with the
+mean field functionals defined by {\it Type\_attr}.  Table~\ref{tab:pairpot} defines the interaction
+potential as well as $u^{attr}$ for each case.  Options are:
+\begin{itemize}
+\item{0: PAIR\_LJ12\_6\_CS: A cut and shifted 12-6 Lennard-Jones fluid where
+cutoff distances are typically set to $r_{cut}=2.5\sigma-10\sigma$}
+\item{1: PAIR\_COULOMB: A cut and shifted Coulomb potential. Note that while Coulomb fluids may be treated in this manner, this approach requires a cut and shift of the interaction potential.  The better approach for charged systems replaces these perturbations with the electrostatic potential and couples the solve of the DFT to a solve of Poisson's equation.  To perform that type of calculation, turn off 
+$Type\_attr$ and turn on $Type\_coul$.}
+\end{itemize}
+\begin{table}[h]
+\center\begin{tabular}{|l|c|c|} \hline
+Label & Pair Potential: $u_{ij}(r)$ & $u^{att}$ \\ \hline 
+PAIR\_LJ12\_6\_CS &
+$u_{ij}^{LJ}(r)=4\epsilon_{ij}\left[\left({\sigma_{ij}\over r}\right)^{12}-
+        \left({\sigma_{ij}\over r}\right)^{6}\right]$ &
+$u^{att}(r)=u_{ij}(r_{min})$ for $r<r_{min}$ where $r_{min}$ \\
+& & is the minimum well depth of $u_{ij}$ \\
+& & This is the WCA approach \\
+ & &  (WCA=Weeks-Chandler-Anderson). \\
+ \hline
+ PAIR\_COULOMB & $u(r) = {q_i q_j}/({T_{elec} r})$ &
+ $u^{att}(r)=u_{ij}$ for $r<d_{ij}$ where \\
+ & $q_i=z_ie$ where $z_i$ is the valence of species $i$& $d_{ij}$ is the diameter of \\
+ &$T_{elec}= 4\pi k T \kappa \epsilon_0 \sigma/e^2$& the hard sphere reference fluid  \\
+& $\kappa=$dimensionless dielectric constant  & \\ 
+ & $\epsilon_0=8.85419e-12 C^2 J^{-1} m^{-1}$  & \\ 
+ &$e=1.60219e^{-19}C$  & \\ 
+& $k=1.3807e^{-23} J/K$  & \\ 
+& $\sigma=$diameter of reference fluid atom& \\ 
+ \hline
+ \end{tabular}
+\caption{Description of pair potentials}
+\label{tab:pairpot}
+\end{table}
+
+\noindent Note that it is relatively straightforward to add new pair potentials for use with the attractive mean-field functionals.  For directions, see the developer pages for Tramonto at http://software.sandia.gov/tramonto/developer\_physics.html.  
+
+%\noindent\dotfill
+
+\vfill
+\break
+
+\noindent\dotfill
+
+
+\vspace{0.1in}
+\noindent{\it Type\_coul}: The type of functional
+used when the DFT Euler-Lagrange equations are coupled to a
+Poisson's equation solve for the electrostatics.  
+The contribution of the electrostatics to the DFT free energy in the perturbation treatment is detailed in Table~\ref{tab:funcelec}.  Options are:
+\begin{itemize}
+\item{-1: NONE: turn off Poisson Terms.  Do this for neutral systems or for cases where 
+$Type\_pairPot=1$.}
+\item{0: BARE: Mean field electrostatics based on point charges only.}
+\item{1: DELTAC: Mean field electrostatics for point charges plus 2nd order correction of Tang and Davis.
+This only applies to a restricted primitive model (RPM) where all charged species have identical
+sizes, $\sigma_{ij}$.  It is based on an analytical solution for the RPM using the mean spherical
+approximation (MSA).}
+\item{2: POLARIZE: Electrostatics for a polarizeable fluid.  Implemented only in 1D as of the 
+February 2007 release of Tramonto v2.1.}
+\end{itemize}
+
+\begin{table}[h]
+\center\begin{tabular}{|l|l|l|} \hline
+Label & Contribution to Euler-Lagrangeeqn & Electrostatics \\ 
+          &  (or other residual eqn) & \\ \hline
+BARE & $q_i \psi({\bf r})$ &
+$\nabla^2\psi({\bf r})=-\sum_i z_i e\rho_i$ \\ \hline
+BARE & $q_i \psi({\bf r})$ &
+$\nabla^2\psi({\bf r})=-\sum_i z_i e\rho_i$ \\ 
+ ($Type\_poly=CMS$)   & (added in $R_1$ residual equation) & \\ \hline 
+DELTAC & $ q_i \rho_i({\bf r})\psi({\bf r})+\sum_j \int {d{\bf r'}}\rho_i({\bf r'}) \Delta c^{MSA}_{ij}(|r-r'|)$ &
+$\nabla^2\psi({\bf r})=-\sum_i z_i e\rho_i$ \\ \hline
+POLARIZE &  $q_i \psi({\bf r})$ &
+$\nabla^2\psi({\bf r})=-\sum_i z_i e\rho_i$ \\ \hline
+ \end{tabular}
+\caption{Description of options for electrostatics}
+\label{tab:funcelec}
+\end{table}
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\noindent{\it Type\_poly}: The type of polymer functional to be used if the fluid is
+composed of bonded systems. Table~\ref{tab:polyoptions} describes the unknown
+fields solved for these cases as well as the residual equations (or contributions to the free energy) associated with these functionals.  Table~\ref{tab:polyoptions2} describes the various
+unknown fields, the number of unknowns per node associated with each type of field, and
+the label used in Tramonto to describe these unknowns.  Extended potentials and charges can also be added to these polymer functionals by turning on
+$Type\_attr$ and/or $Type\_coul$ parameters.  For the CMS functionals, one must set $Type\_attr$ = 0, even for purely repulsive chains, so that the code calculates the mean-field part of the potential correctly.
+Options for $Type\_poly$ are:
+\begin{itemize}
+\item{-1: NONE: No polymer functionals.  No bonds.}
+\item{0: CMS:  Chandler-McCoy-Singer DFT \cite{chandler1,chandler2,chandler3} based
+on freely-jointed chains where the single chain part of the functional is evaluated
+numerically as described by Donley et al. \cite{donley}. Also see our previous work \cite{frischknecht1}.
+The notation here has been generalized for branched chains.  If using the CMS functionals, one must set $Type\_attr$ = 0, even for purely repulsive chains, so that the code calculates the mean-field part of the potential correctly.  Finally, note that this functional is \_NOT\_ based on a perturbation to hard spheres, but rather on a second order perturbation to ideal chains.}
+\item{1: CMS\_SCFT:  This option simplifies the CMS theory to reproduce polymer Self-Consistent Field Theory.
+Note that the algorithms in Tramonto are not optimal for SCFT.  Rather this approach serves as a test
+and a point of comparison with work in the SCFT community.  This option is not fully implemented as
+of the February 2007 release of Tramonto v2.1.}
+\item{2: WTC:  Tripathi-Chapman functionals \cite{WTC1,WTC2} based on a Wertheim's theory approach in the limit
+of infinitely strong associations.  This approach is a perturbation theory based on a hard
+sphere reference fluid.  As such it requires one of the FMT types for $Type\_func$ to be turned on.
+}
+\end{itemize}
+
+\begin{table}[h]
+\center\begin{tabular}{|l|l|l|} \hline
+Label & Unknown fields & Residual equation \\ \hline 
+CMS & $x_1^\alpha({\bf r}) = e^{-U_\alpha({\bf r})/kT}$ &
+$R_1=0= \ln(x_1^{\alpha}({\bf r})) +
+V^\alpha({\bf r})/kT - \sum_\beta \int_V d {\bf r'}
+c_{\alpha \beta}(|{\bf r} - {\bf r'}|)(x_2^\beta({\bf r'})-\rho^\beta_{bulk})$ \\ 
+& $x_2^\alpha({\bf r}) = \rho_\alpha({\bf r})$ & 
+$R_2=0 = x_2^\alpha({\bf r})*x_1^\alpha({\bf r}) -{\rho^\alpha \over N_\alpha} \sum_{i}^{\{N_\alpha\}}
+\left(\prod_{\beta=1}^{N_i} x_3^{i,j(\beta)}({\bf r})\right) \left(x_1^\alpha({\bf r})\right)^{-(N_i-2)}$ \\
+& $x_3^{i,j}({\bf r}) = G_i^j({\bf r})$ &
+$R_3^{i,j}({\bf r}) = 0 = x_3^{i,j}({\bf r}) - x_1^{\alpha(i)}({\bf r}) \times$ \\
+&& $\ \ \ \ \ \ \ \ \int d{\bf r'} \left( \prod_{\beta=1}^{N_j:k(\beta) \neq i}x_3^{j,k(\beta)}({\bf r'})
+\right) \left(x_1^{\alpha(j)}({\bf r'})\right)^{-(N_j-2)} w_{i,j}({\bf r-r'})$ \\ 
+\hline
+WTC & $x_1^{iseg}({\bf r})=\rho_{iseg}({\bf r})$ & 
+${{\Delta A^{assoc}}/{kT}}={1 \over 2}\int d{\bf r} \sum_{\alpha}\rho_{\alpha}({\bf r})
+\sum_{\alpha'\{A\}_\alpha}\left(1- \ln\left\{y_{\alpha \alpha'}(\{\xi_i({\bf r}\})n_{\alpha \alpha'}({\bf r})\right\}\right)$ \\
+& & where \\
+& & $y_{\alpha\alpha'}(\{\xi_i\})={{1}\over{1-\xi_3}}+
+{{3\sigma_\alpha\sigma_{\alpha'}}\over{\sigma_\alpha+\sigma_{\alpha'}}}{{\xi_2}\over{(1-\xi_3)^2}}
++2\left({{\sigma_\alpha \sigma_\alpha'}\over{\sigma_\alpha+\sigma_\alpha'}}\right)^2
+{{\xi_2^2}\over{(1-\xi_3)^3}}$ \\
+& & (chain contribution to perturbation DFT free energy functional) \\ 
+&$x_2({\bf r})=\xi_{[2,3]}$ & \\
+& $x_3({\bf r})=n_{\alpha \alpha'}({\bf r})$&  $n_{\alpha \alpha'}({\bf r})=\int d{\bf r}' \omega^{\alpha\alpha'}(|{\bf r}-{\bf r}'|) \rho_{\alpha'}({\bf r}')$ \\ \hline
+ \end{tabular}
+\caption{Description of systems of equations for polymer functionals.  Note that in the 
+CMS functional $\omega_{ij}({\bf r-r'}) = {{\delta(|{\bf r - r'}| -b_{ij})}/({4\pi b_{ij}^2}})$ and in the
+WTC functional $\omega^{\alpha\alpha'}({\bf r-r'}) = {{\delta(|{\bf r - r'}| -b_{\alpha\alpha'})}/({4\pi b_{\alpha\alpha'}^2}})$ where $b$ is a bond length, and the $ij$ (or $\alpha \alpha'$) pairs refer to bonded 
+segments on the chains.  The $\delta$ function sets the chain type to
+freely-jointed chains.  Liquid state information enters the CMS functional through  $c_{\alpha \beta}({\bf r})$ which is the direct correlation function between sites of type $\alpha$ and type $\beta$. }
+\label{tab:polyoptions}
+\end{table}
+
+\begin{table}[h]
+\center\begin{tabular}{|l|l|l|l|l|} \hline
+Func Label & Unknown fields & description & \# unks/node & Unknown Label \\ \hline 
+CMS & $x_1^\alpha({\bf r}) = e^{-U_\alpha({\bf r})/kT}$ & $U_\alpha=$mean fields  & $N_{block}$ & CMS\_FIELD \\
+&&($\alpha=$component)&& \\
+\hline
+CMS & $x_2^\alpha({\bf r}) = \rho_\alpha({\bf r})$ & component densities & $N_{block}$ & DENSITY \\ \hline
+CMS & $x_3^{i,j}({\bf r}) = G_i^j({\bf r})$& propagator funcs & $2N_{bond}$ & CMS\_G \\
+& & for all j bonded to i & & \\ \hline \hline
+WTC &  $x_1^{iseg}({\bf r})=\rho_{iseg}({\bf r})$ & segment densities& $N_{seg}$& DENSITY \\ \hline
+WTC & $x_2({\bf r})=\xi_{[2,3]}$& cavity equations& 2 & CAVWTC\\ \hline
+WTC & $x_3({\bf r})=n_{\alpha \alpha'}({\bf r})$ & bond densities & $2N_{bond}$ & BONDWTC\\ \hline
+ \end{tabular}
+\caption{Further description of unknown fields solved in Tramonto.}
+\label{tab:polyoptions2}
+\end{table}
+
+\noindent Note that since the WTC functional does not strictly enforce chain bonding, the functional can exhibit incorrect stoichiometry in an inhomogeneous system.  The CMS functionals exhibit smaller stoichiometry errors at hard walls.  
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{SURFACE PARAMETERS}
+{\bf
+These parameters are used to set up the geometric parameters
+defining the surfaces of interest.  The example shows the
+case of a square channel where the channel is created from two
+types of planar surfaces.  The two types have different
+orientations.}
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype}
+
+{\it Nwall\_type \ \ Nwall \ \ Nlink \ \ Lauto\_center \ \ Lauto\_size (int,int,int,int,int)
+
+Xtest\_reflect\_TF[ilink][idim](int array)
+
+Surf\_type[iwall\_type](int array)
+
+Orientation[iwall\_type](int array)
+
+WallParam[iwall\_type](real array)
+
+WallParam2[iwall\_type](real array)
+
+WallParam3[iwall\_type](real array)
+
+WallParam4[iwall\_type](real array)
+
+Lrough\_surf[iwall\_type](int array)
+
+rough\_param\_max[iwall\_type](real array)
+
+Rough\_length[iwall\_type](real array)
+}
+
+\noindent==========================================================
+
+{\bf Example}
+
+\begin{verbatim}
+*************** SURFACE PARAMETERS ************************
+@  2 4 3 0 0             Nwall_type Nwall Nlink Lauto_center Lauto_size
+@ 0 0 0 0 0 0 0 0 0     Xtest_reflect_TF
+@  0  0             Surf_type[iwall_type]; iwall_type=0,Nwall_type-1
+@  0  1             Orientation[iwall_type]; iwall_type=0,Nwall_type-1
+@  1.0 1.0          WallParam[iwall_type]; iwall_type=0,Nwall_type-1
+@  1.0 1.0          WallParam2[iwall_type]; iwall_type=0,Nwall_type-1
+@  1.0 1.0          WallParam3[iwall_type]; iwall_type=0,Nwall_type-1
+@  0.0 0.0          WallParam4[iwall_type]: iwall_type=0,Nwall_type-1
+@  0.0 0.0          Lrough_surf[iwall_type]: iwall_type=0,Nwall_type-1
+@  0.0 0.0          rough_param_max[iwall_type]: iwall_type=0,Nwall_type-1
+@  0.0 0.0          Rough_length[iwall_type]: iwall_type=0,Nwall_type-1
+  
+
+*****************************************************************
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent {\it ilink}:  Index over the number of independent compound (or
+linked) surfaces in the system, {\it Nlink}.  {\it
+ilink=\{0,Nlink-1\}}
+
+\vspace{0.1in}
+\noindent {\it iwall\_type}: Index over the different {\it types}
+of surfaces in the system. {\it iwall\_type=\{0,Nwall\_type-1\}}.
+
+\vspace{0.1in}
+\noindent {\it Nwall\_type}:  The number of different surface {\it
+types} in the system.  Two walls are of the same type if {\bf all}
+of the parameters defining them are the same.
+
+\vspace{0.1in}
+\noindent {\it Nwall}: The total number of surfaces in the system.
+
+\vspace{0.1in}
+\noindent {\it Nlink}: The number of independent compound surfaces
+in the system.
+
+\vspace{0.1in}
+\noindent{\it Lauto\_center}:  Have the code automatically center the
+surfaces in the computational box.  This may facilitate applying bulk
+boundaries or viewing the results of the simulation when the initial
+coordinates are not well centered.  Taking coordinates from the Protein
+Data Bank is one case where the surface (atomic) coordinates may not
+be well centered.
+
+\vspace{0.1in}
+\noindent{\it Lauto\_size}:  Automatically determine a box size for coarsened meshes. 
+
+\vspace{0.1in}
+\noindent {\it Xtest\_reflect\_TF}: A logical array (0=FALSE,
+1=TRUE) that indicates how to treat surfaces that exist in
+adjoining domains across reflective boundaries.  TRUE indicates
+that the surfaces in the next domain are different than those
+in the computational domain, while FALSE indicates that they
+are extensions of the surfaces in this domain.  For example,
+consider a cylindrical surface with the long axis parallel to the
+z-coordinate of the system and assume all boundaries of the 3D
+domain are reflective.  In the x and y directions, there are
+independent surfaces beyond the boundaries while in the z
+direction, the same cylinder is extended.  These situations
+must be treated differently when the surface-fluid interactions
+are hard.
+%
+
+\vspace{0.1in}
+\noindent {\it Surf\_type}:  This array stores the basic shapes of the surfaces.
+Several choices are currently possible as outlined in Table \ref{tab:table1},
+and addition of new surfaces in the
+code is straightforward.  The difference between colloidal
+cylinder/spheres and atomic cylinder/spheres is that in
+the former case the WallParam is used to define the radii of the
+surfaces while in the latter case, the wall $\sigma_w$ ({\it Sigma\_w})
+parameter entered later defines the surface diameter.
+
+\vspace{0.1in}
+\noindent {\it Orientation}:  This parameter identifies the
+orientation of
+the surface as detailed in Table \ref{tab:table1}.  This parameter
+is always a direction ({\it Orientation=\{0,2\}}). For example
+it gives the direction
+of the surface normal in the case of an infinite planar surface.
+If no orientation is needed, any number may be present in the input file.
+
+\vspace{0.1in}
+\noindent {\it WallParam, WallParam2, WallParam3}:  Arrays that store
+the parameters needed to describe the geometry of a given surface type.  The
+parameters are given in Table \ref{tab:table1}.  Each surface type must
+have an entry for each type of WallParam although some wall types only
+need one parameter.  In these cases any number may appear in the list
+since these numbers are never used.  It is important to note that
+TRAMONTO needs to read in the arrays in their entirety so entries may
+not be omitted from the input file.
+
+\vspace{0.1in}
+\noindent {\it WallParam4, Lrough\_surf, rough\_param\_max, Rough\_length}:  These parameters are used for a special case of surface, a cylindrical wedge defined by a polar angle (either infinite with Ndim=2 or finite length with Ndim=3).  For this case, the origin is placed at the center of the cylinder.  The surface consists of a wedge beginning at an angle, in degrees, specified by WallParam3 and ending at the angle given by WallParam4, with 0 degrees corresponding to the $x$-axis.  To obtain a full cylinder, set WallParam3 = 0 and WallParam4 = 360.  These cylindrical wedges can also be given a rough surface as described next.
+
+\vspace{0.1in}
+\noindent {\it Lrough\_surf}: a logical flag specifying whether the surface should be rough or not: 0 = not rough, 1 = rough.  Only implemented for cylinders at this time.
+
+\vspace{0.1in}
+\noindent {\it rough\_param\_max}: This parameter specifies the magnitude of the roughness, in units of $\sigma_{ref}$.  The code then makes the radius of the cylinder = radius $\pm \tau$, where $\tau$ is a random number with a maximum magnitude of rough\_param\_max.
+
+\vspace{0.1in}
+\noindent {\it Rough\_length}: The length scale for the roughness along the long axis of the cylinder, in units of $\sigma_{ref}$ (i.e. how many different $\tau$ values should occur along the cylinder).
+
+\begin{table}[h]
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+Surf\_type & flag& Ndim& WallParam & WallParam2 & WallParam3 & Orientation \\
+\hline
+Infinite Planar Wall & 0&1-3 & half thickness & N/A & N/A & Surf Normal \\
+Finite Planar Wall & 1 &1-3 & half thickness & half thickness
+& half thickness & Surf Normal\\
+Colloids (cyl/sphere)& 2 &2-3& radius & N/A & 0.0 & N/A \\
+Atoms (spheres)& 3 &3& radius & N/A & N/A & N/A \\
+Point Atoms & 4 &3& radius & N/A & N/A & N/A \\
+Cylinder - finite length& 5 &3& radius & length & 0.0 & Long Axis \\
+Cyl/Periodic & 6 & 3& mean radius & amplitude & period length & Long Axis \\
+Pore (cyl-2D/sphere-3D)& 7 & 2-3& radius & N/A & N/A & N/A\\
+Finite Pore (slit-2D/cyl-3D)& 8 & 2-3& pore radius & length & N/A &Long Axis \\
+Tapered Pore  & 9 & 2-3& pore radius (lbb)& pore radius (rtf)& length & Long Axis\\
+\hline
+\end{tabular}
+\caption{Details of possible surface types. The columns are a
+description of the surface type, the flag entered in {\it dft\_input.dat}
+to select a given surface, the number of dimensions possible for a
+given surface type, the meanings of various wall parameters,
+and the definition of the orientation parameter. 
+The notation lbb refers to the left(idim=0),
+bottom (idim=1) or back (idim=2) radius of the tapered pore while
+rtf refers to the right, top, or front dimension. \label{tab:table1} }
+\end{table}
+
+
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{INTERACTION POTENTIAL TYPE PARAMETERS}
+{\bf
+ These switches are used to indicate the type of wall-fluid and wall-wall interaction
+ potential models that are to be used in the calculation.  Note that the wall-fluid interactions may
+ be different for different wall types.  Here we list the options currently implemented in the code.  New interactions may be added by writing an appropriate set of functions; see the Tramonto website for more information.  Finally, note that any surface
+ can be treated as a (semi-)permeable object as described in section~2.8.}
+
+\vspace{0.1in}
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Ipot\_wf\_n[iwall\_type] (int array)
+
+Lhard\_surf (int)
+
+Type\_vext1D \ \  Type\_vext3D (int, int)
+
+Ipot\_ww\_n[iwall\_type][jwall\_type] (int array)
+
+Type\_uwwPot} (int)
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+*************** INTERACTION POTENTIAL TYPE SELECTIONS ************************
+@ 1 2     Ipot_wf_n[iwall_type]
+                    0=No_wall-fluid,
+                    1=Hard_wall,
+                    2=1D potential in 1D calculation,
+                    3=1D potential in 2D or 3D calculation - based on Xmin[iwall]
+                    4=1D potential in 2D or 3D calculation - based on Xmin[Orientation]
+                    5=LJ12_6 integrated,
+                    6=ATOMIC potential (LJ 12-6)
+                           
+@ 1       Lhard_surf (Logical that controls application of integration stencil at the 
+                    boundaries. If TRUE (1), the step function at the boundary is treated 
+                    carefully).
+                           
+@ 0 0     Type_vext1D,  Type_vext3D
+                   (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 
+                        3=LJ9_3_shiftX_CS,4=REPULSIVE9_noCS, 5=EXP_ATT_noCS)
+                    (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
+
+@ -2        Ipot_ww_n[iwall_type][jwall_type]
+	             -2 : set entire array to 0
+	             -1 : set entire array to 1
+	              0 : no interactions
+	               1: compute interactions of atom centers (LJ+COULOMB)
+	                   
+@ 0          Type_uwwPot  
+          	    (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)	                 
+*****************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\vspace{0.1in}
+\noindent{\it Ipot\_wf\_n}:  An array of switches indicating the type of neutral
+interactions between the fluid particles and the surfaces.  Table~\ref{tab:vexttable1} provides
+a description of several of the options.  The options
+are:
+\begin{itemize}
+\item {0: VEXT\_NONE: No external field.}
+\item {1: VEXT\_HARD: An infinitely hard wall.}
+\item {2: VEXT\_1D: A 1-dimensional (1D) potential used in a 1D calculation.  The specific
+functional form is set by {\it Type\_vext1D} defined below.}
+\item {3: VEXT\_1D\_XMIN: A 1D potential to be used in a 2D or 3D calculation.  The algorithm finds the minimum distance from each surface and uses those distances to compute the external field.}
+\item {4: VEXT\_1D\_ORIENTATION: A 1D potential used in a 2D or 3D calculation.  The algorithm
+finds the distance to the nearest surfaces in the Orientation direction.
+Those distances, x are used to compute the external field.}
+\item{5: VEXT\_3D\_INTEGRATED:  Start with a 3D potential (defined by {\it Type\_vext3D} below), and 
+numerically integrate that potential over the surface of interest from every point in the fluid domain.  This allows an arbitrary surface geometry to be composed of say Lennard-Jones atoms at a certain density without representing them explicitly.  Given a certain class of potentials (e.g. Lennard-Jones 12-6
+in 3D and the corresponding analytical surface integration to a 9-3 potential), identical results
+should be obtained from this option when $r_{cut}^wf\to \infty$ as is obtained from VEXT\_1D
+$z_{cut}\to \infty$.}
+\item{6: VEXT\_ATOMIC:  Surfaces are atoms, and a 3D interaction potential (defined by
+{\it Type\_vext3D}) is used to calculate the external field.}
+\end{itemize}
+
+\begin{table}[h]
+\center\begin{tabular}{|l|l|} \hline
+Label & Mathematical Description of External Field \\ \hline 
+VEXT\_NONE & $ V^{ext}({\bf r})=0$ for all ${\bf r}.$  \\ \hline
+VEXT\_HARD & $ V^{ext}({\bf r})=\infty \ \mathrm{if} \ |{\bf r}-{\bf R}_s| < WallParam+\sigma_{wi}/2$  \\
+ & $V^{ext}({\bf r})=0,  \ \mathrm{otherwise}$ \\  
+  & where ${\bf R_s}$ is the location of the surface \\ \hline
+ VEXT\_1D & $V_{1D}(x)$ \\ \hline
+ VEXT\_1D\_XMIN & $V_{1D}(x_{min}[idim])$ \\ \hline
+ VEXT\_1D\_ORIENTATION & $V_{1D}(x_{min}[Orientation[type\_wall])$ \\ \hline
+ VEXT\_3D\_INTEGRATED & $V({\bf r})=\int d{\bf r_s} \left[u_{3D}(|{\bf r- r_s}|)-u_{3D}(r_{cut})   \right]$ \\
+&  where $d{\bf r_s}$ indicates an integral over the elements in the surface. \\ \hline
+VEXT\_ATOMIC & $V({\bf r})=\sum_{Nwall} u_{3D}(|{\bf r- r_s}|)-u_{3D}(r_{cut})$ \\
+& where ${\bf r_s}$ is the position of a fixed surface atom. \\ \hline
+ \end{tabular}
+\caption{Different options for computing external fields in Tramonto.}
+\label{tab:vexttable1}
+\end{table}
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\vspace{0.1in}
+\noindent{\it Lhard\_surf}:  A logical that controls how hard boundaries are handled.  If TRUE (1), then the step function at the boundary of a hard wall is treated carefully to account for the discontinuity.  Otherwise, all fields are assumed to vary linearly in elements, even at the boundary of a hard surface.
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\vspace{0.1in}
+\noindent{\it Type\_vext1D}:  The type of 1D external potential to use for computing the external field.  
+The potentials are a function of the distance $x$ between the surface of interest and a point in the fluid.  Table~\ref{tab:vexttable2} provides specifics.  The options are:
+\begin{itemize}
+\item{0: LJ9\_3\_CS: The cut and shifted Lennard-Jones 9-3 wall for 1D systems
+of infinite planar walls.}
+\item{1: LJ9\_3\_v2\_CS: Same functional form as  LJ9\_3\_CS, but with different prefactors}
+\item{2:  LJ9\_3\_noCS:  The 9-3 Lennard-Jones potential without the cut and shift.}
+\item{3: LJ9\_3\_shiftX\_CS: This option shifts the usual 9-3 LJ wall potential by a factor $\Delta$, given by $\Delta_{ff} = (\sigma_{ff}-1)/2$.}
+\item{4: REPULSIVE9\_noCS: This is a purely repulsive wall.  No cut and shift.}
+\item{5: EXP\_ATT\_noCS:  An exponential external field.  No cut and shift.}
+\end{itemize}
+
+\begin{table}[h]
+\center\begin{tabular}{|l|l|l|} \hline
+Label & $V^{ext}(x)$ & 1D external fields - functional form \\ \hline 
+
+LJ9\_3\_CS & $V(x)-V(x_{cut}) \quad x < x_{cut}$ & $V(x) = \frac{2 \pi \epsilon_{wf} \rho_w \sigma_{wf}^3 }{3} \left[\frac{2}{15} \left(\frac{\sigma_{wf}}{x}\right)^9 - \left(\frac{\sigma_{wf}}{x}\right)^3  \right] $  \\ 
+&$0  \quad x > x_{cut}$& \\ \hline
+
+LJ9\_3\_v2\_CS & $V(x)-V(x_{cut}) \quad x < x_{cut}$&$ V(x) = \epsilon_{wf} \rho_w \left[\frac{2}{15} \left(\frac{\sigma_{wf}}{x}\right)^9 - \left(\frac{\sigma_{wf}}{x}\right)^3  \right]$  \\
+&$0  \quad x > x_{cut}$& \\ \hline
+
+ LJ9\_3\_noCS & $V(x)$ &$V(x) = \frac{2 \pi \epsilon_{wf} \rho_w \sigma_{wf}^3 }{3} \left[\frac{2}{15} \left(\frac{\sigma_{wf}}{x}\right)^9 - \left(\frac{\sigma_{wf}}{x}\right)^3  \right] $ \\
+ &$0  \quad x > x_{cut}$& \\ \hline
+
+ LJ9\_3\_shiftX\_CS & $V(x)-V(x_{cut}) \quad x < x_{cut} + \Delta_{ff}$ &$V^{LJ}(x) = \epsilon_{wf} \rho_w \left[\frac{2}{15} \left(\frac{\sigma_{wf}}{x-\Delta_{ff}}\right)^9 - \left(\frac{\sigma_{wf}}{x-\Delta_{ff}}\right)^3  \right]$ \\ 
+ &$0  \quad x > x_{cut} +  \Delta_{ff}$& \\ \hline
+
+ REPULSIVE9\_noCS & $V(x)$ &$V^{ext}(x) = \frac{2 \pi \epsilon_{wf} \rho_w \sigma_{wf}^3 }{3} \left[\frac{2}{15} \left(\frac{\sigma_{wf}}{x}\right)^9  \right]$ \\
+&$0  \quad x > x_{cut}$& \\ \hline
+
+ EXP\_ATT\_noCS & $V(x)$ &$V(x) = -\epsilon_{wf} \rho_w e^{-x/\sigma_{wf}}$ \\
+&$0  \quad x > x_{cut}$& \\ \hline
+
+ \end{tabular}
+\caption{Description of 1D external field options.  Note that all cutoff distances are set by the input parameter $Cut\_wf$ as
+$x_{cut} =$ {\it Cut\_wf[icomp][iwall\_type]}.  See section on Interaction Parameters for more details.}
+\label{tab:vexttable2}
+\end{table}
+
+\noindent   
+See http://software.sandia.gov/tramonto/developer\_physics.html for guidance on
+implementing a new 1D external field option.
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\vspace{0.1in}
+\noindent{\it Type\_vext3D}:  
+Controls the 3D potential that will be used if {\it Ipot\_wf\_n} is VEXT\_3D\_INTEGRATED or VEXT\_ATOMIC.  The specific form of the interactions between the wall atoms and fluid species are specified in Table~\ref{tab:vexttable3}. Options are:
+\begin{itemize}
+\item{0: PAIR\_LJ12\_6\_CS: A cut and shifted 12-6 Lennard-Jones potential.}
+\item{1: PAIR\_COULOMB: A coulomb potential.  Note that in this potential $q_w=$wall atom charge, $q_f=$fluid component charge, and that  
+$q_w$ is set in {\it dft\_surfaces.dat} while 
+$q_f$ is set in the Interaction Potential 
+parameters section of {\it dft\_input.dat}.  Finally note that $T_{elec}$ was defined in the section on Functional
+Switch Parameters under {\it Type\_pairPot}.}
+\end{itemize}
+%
+\begin{table}[h]
+\center\begin{tabular}{|l|l|l|} \hline
+Label & $V^{ext}({\bf r})$ & 3D potential functional form \\ \hline 
+PAIR\_LJ12\_6\_CS & $u_{wf}(r)-u_{wf}(r_{c}) \quad r < r_{c}$ & 
+$u_{wf}(r)=4\epsilon_{wf}\left[\left({\sigma_{wf}\over r}\right)^{12}-
+        \left({\sigma_{wf}\over r}\right)^{6}\right]$\\ 
+& $0  \quad r > r_{c}$ & \\ \hline 
+PAIR\_COULOMB & &  $u(r) = \frac{q_w q_f}{T_{elec} r}$.\\ 
+&& $q_w=$wall atom charge, $q_f=$fluid component charge \\ \hline
+\end{tabular}
+\caption{3D potential options for computing external fields.  Note that the 
+distance $r$ is computed from a point in the fluid to the center of the surface
+as defined by the $WallPos$ variables set in {\it dft\_surfaces.dat}.  }
+\label{tab:vexttable3}
+\end{table}
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\noindent{\it Ipot\_ww\_n}:  An array of switches indicating the type of neutral
+interactions between the surfaces in the system.  Often we leave these terms
+out of the calculation; however they may be needed in some cases.  For example, 
+a calculation of potential of mean force as a function
+of distance between two solvated atoms, molecules, colloidal particles, or surfaces requires the 
+direct interaction as one contribution.  
+To turn off computation of wall-wall interactions, set the first entry of the array to -2.  The code 
+automatically fills the arrays with FALSE (0).   To turn on surface interactions for all wall-wall 
+pairs, set the first entry in the array to -1 and this array will automatically be set to TRUE (1).  To compute some but not all surface interactions, manually set
+up the array using the integers 0 for FALSE and 1 for TRUE.
+
+\noindent\dotfill
+
+\vspace{0.1in}
+\vspace{0.1in}
+\noindent{\it Type\_uwwPot}:
+This specifies the type of surface-surface interactions.  Options are the same as in Tables~\ref{tab:pairpot} and \ref{tab:vexttable3}.  However, the interaction potential parameters are all based on wall-wall parameters, $\sigma_{ww}$, $\epsilon_{ww}$, $q_w$, etc.  Again the options are:
+\begin{itemize}
+\item{0: PAIR\_LJ12\_6\_CS}
+\item{1: PAIR\_COULOMB}
+\end{itemize}
+
+\noindent\dotfill
+
+\vfill
+\break
+
+
+%\vspace{0.1in}
+\subsection{INTERACTION ENERGY PARAMETERS}
+{\bf
+These parameters describe the properties of the fluid and wall
+particles with respect to their interactions.
+The example shows input for a three component 1:1 electroltye solution
+interacting with a hard charged wall.
+Each parameter is described in more detail below for both atomic
+fluids and polymeric fluids. }
+
+\vspace{0.1in}
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Ncomp  \ \ Mix\_Type
+
+Mass[icomp]
+
+Charge\_f[icomp]
+
+Pol[icomp]
+
+Sigma\_ff[icomp,jcomp]
+
+Eps\_ff[icomp,jcomp]
+
+Cut\_ff[icomp,jcomp]
+
+Bond\_ff[icomp,jcomp]
+
+Rho\_w[iwall\_type]
+
+Sigma\_ww[iwall\_type,jwall\_type]
+
+Eps\_ww[iwall\_type,jwall\_type]
+
+Cut\_ww[iwall\_type,jwall\_type]
+
+Sigma\_wf[icomp,iwall\_type]
+
+Eps\_wf[icomp,iwall\_type]
+
+Cut\_wf[icomp,iwall\_type]
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************ INTERACTION ENERGY PARAMETERS *******************************
+@  3  0            Ncomp  Mix_Type
+                   Ncomp = (number of components) OR for polymers ....
+                            Ncomp=Nblock_tot (number of polymer block groups)
+                   Mix_Type = 0 for L-B rules, =1 for manual input
+
+                        --------FLUID-FLUID INTERACTION PARAMETERS---------
+@  1. 1. 1.                        Mass(icomp):icomp=0,Ncomp-1
+@  0. 1. -1.                        Charge_f(icomp):icomp=0,Ncomp-1; Valence
+@  0. 0. 0.                        Pol(icomp):icomp=0,Ncomp-1; Polarization Parameter
+
+@  1. 1. 1.                        Sigma_ff(icomp,jcomp):(i,j)comp=0,Ncomp-1
+@  1. 1. 1.                    Eps_ff(icomp,jcomp):(i,j)comp=0,Ncomp-1
+@  2.5 2.5 2.5                     Cut_ff(icomp,jcomp):(i,j)comp=0,Ncomp-1
+@  1. 1. 1.                        Bond_ff(icomp,jcomp):(i,j)comp=0,Ncomp-1
+
+                        ----------WALL-WALL INTERACTION PARAMETERS---------
+@ 1.                          Rho_w[iwall_type]: density of atoms in surface
+@ 1.                        Sigma_ww[iwall_type][jwall_type]:
+@ 9. 9. 9.                 Eps_ww[iwall_type][jwall_type]:
+@ 2.5 2.5 2.5                        Cut_ww[iwall_type][jwall_type]:
+
+                        ----------WALL-FLUID INTERACTION PARAMETERS---------
+@  1.0                   Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1]
+@  1.0                   Eps_wf[i][j]
+@  1.0                   Cut_wf[i][j]
+
+*****************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it icomp, jcomp}: Index over the number of fluid components
+$Ncomp$ in the system.
+
+\vspace{0.1in}
+\noindent{\it iwall\_type, jwall\_type}: Index over the number of wall types
+$Nwall\_type$ in the system.
+
+\vspace{0.1in}
+\noindent{\it Ncomp}: Number of fluid components.  For polymer fluids enter
+the total number of different block types in the system.
+So, for the case of a one component diblock
+copolymer, there are two segment types, and {\it Ncomp} should be 2.
+All the following arrays then have a length of \{{\it Ncomp},{\it Ncomp}\}.
+
+\vspace{0.1in}
+\noindent{\it Mix\_Type}: Type of mixing rules to be applied for a given problem.
+If $Mix\_type=0$ then the Lorentz-Berthlot rules will be applied.  In these cases,
+only the diagonals of the various arrays must be entered in this section.  Then the code will
+calculate the off-diagonal entries.  They are
+$\sigma_{ij}=0.5(\sigma_{ii}+\sigma_{ij})$, Bond\_ff$_{ij}$=0.5(Bond\_ff$_{ii}$+Bond\_ff$_{ij}$), Cut\_ff$_{ij}=$Cut\_ff$_{ii}$+Cut\_ff$_{jj}$,  and
+$\epsilon_{ij}=\sqrt{\epsilon_{ii}\epsilon_{jj}}$.  In addition, the wall-fluid interaction
+energy parameters will be calculated as
+$\sigma_{wf}=0.5(\sigma_{ww}+\sigma_{ff})$ and
+$\epsilon_{wf}=\sqrt{\epsilon_{ww} \epsilon_{ff}}$. Finally, the cut-off distance for
+the wall-fluid interaction is taken to be Cut\_wf = Cut\_ww + Cut\_ff for each wall type/fluid component pair.
+If Mix\_type is set to 1, then every element of the arrays must be manually entered
+for fluid-fluid, wall-wall, and wall-fluid parameters.  Note that depending on
+what types of fluid and surfaces are being studied many of these parameters may be
+irrelevent so any number may be found in the input file.
+
+\vspace{0.1in}
+\noindent{\it Mass}:  Array containing the mass of each
+species.  Used if one wants to include the deBroglie wavelength
+term in the chemical potential expressions.  Otherwise set to
+1.0.
+
+\vspace{0.1in}
+\noindent{\it Charge\_f}:  Array containing the valence associated with
+each component.  Charges are only read in if the fluid is Coulombic.
+
+\vspace{0.1in}
+\noindent{\it Pol}:  Array containing the Polarization parameter.  Note that one must have Type\_coul=3
+for this array to be read or used.
+
+
+\vspace{0.1in}
+\noindent{\it Sigma\_ff}:  Array containing interaction diameters of various
+fluid-fluid interactions.   The dimensions depend on the {\it Length\_ref}
+parameter set earlier. These parameters are irrelevent for the
+ideal gas and Poisson-Boltzmann electrolyte cases.
+Note that all arrays, $[i][j]$, are
+entered in the following order:
+$[i][j]$: [0][0],...,[0][Nj-1]; [1][0],...,[1][Nj-1];
+...[Ni-1][0],...,[Ni-1][Nj-1].
+
+\vspace{0.1in}
+\noindent{\it Eps\_ff}:  Array containing interaction energy parameters
+associated with Lennard-Jones fluid-fluid interactions.  The dimensions
+depend on the {\it Temp} parameter set earlier.
+These parameters are only read in if Lennard-Jones attractions are included
+in the calculation.
+
+\vspace{0.1in}
+\noindent{\it Cut\_ff}:  Array containing the cut-off lengths for the
+Lennard-Jones fluid-fluid interactions.  The units depend on the {\it Length\_ref}
+parameter discussed earlier.  These parameters are only read in if
+Lennard-Jones attractions are included in the calculation.
+
+\vspace{0.1in}
+\noindent{\it Bond\_ff}:  Array containing bond lengths between various species 
+pairs for polymer calculations.  
+Making the bonds shorter than the corresponding $\sigma$ is an overlapping sphere model.
+
+\vspace{0.1in}
+\noindent{\it Rho\_w}:  An array that contains
+the density of the solid surfaces of interest.  The units depend on the
+{\it Density\_ref} parameter set earlier.
+
+\vspace{0.1in}
+\noindent{\it Sigma\_ww}:  Array containing interaction diameters of various
+surface types with one another.
+
+\vspace{0.1in}
+\noindent{\it Eps\_ww}:  Array containing interaction energy parameters
+associated with Lennard-Jones wall-wall interactions.
+
+\vspace{0.1in}
+\noindent{\it Cut\_ww}:  Array containing the cut-off lengths for the
+Lennard-Jones wall-wall interactions.
+
+\vspace{0.1in}
+\noindent{\it Sigma\_wf}:  Array containing interaction diameters of various
+fluid-surface interactions.  These are only relevent if $Mix\_Type=1$.
+
+\vspace{0.1in}
+\noindent{\it Eps\_wf}:  Array containing interaction energy parameters
+associated with Lennard-Jones wall-fluid interactions.  These are only relevent if $Mix\_Type=1$.
+
+\vspace{0.1in}
+\noindent{\it Cut\_wf}:  Array containing the cut-off lengths for the
+Lennard-Jones wall-fluid interactions. These are only relevent if $Mix\_Type=1$.
+
+\vfill
+\break
+
+\subsection{POLYMER INPUT PARAMETERS}
+{\bf Here is where
+necessary information for polymer runs is entered.\footnote{Note: If
+the polymer functionals are not turned on, this section
+will be skipped.}  The example below shows an 8-8 block
+copolymer.  Note that if using the CMS functionals, the c(r) file containing the direct correlation function needs to be generated in some way.  This can be done using PRISM as is described later in this document, or by simulation or other means.}
+
+
+\vspace{0.1in}
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Npol\_comp
+
+Nblock[pol\_number]
+
+Block[iblock\_tot]
+
+Block\_type[iblock\_tot]
+
+
+poly\_file
+
+NCrfiles  Crfac  Cr\_file  Cr\_file2 Cr\_file3 Cr\_file4
+
+Cr\_rad
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************* POLYMER INPUT PARAMETERS ****************************************
+@ 1             Npol_comp:                 Number of (co)polymer components
+@ 2             Nblock[pol_num]:        Number of blocks in each copolymer
+@ 8 8           block[pol_num][iblock]: Number of segments in each block
+@ 0 1           block_type[pol_num][iblock]:    Segment types in each block (start w/0, don't skip)
+@ star_4444_sym poly_file:              File containing polymer connectivity
+@ 2  0.2  crf8.8_0.7  crf8.8_0.7_xs0.333 crf8.8_0.7_xs0.666 crf8.8_0.7_xs0.999     
+                                                       NCrfiles  Crfac  Cr_file1  Cr_file2 Cr_file3 Cr_file4
+@  0.333 0.666                           Cr_break[i=0;NCr_files-2]
+@ 1.0           Cr_rad:                    c(r) radius (units of sigma)
+
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{\it pol\_num}:  An index that runs over all the polymer components
+                            in the system.
+                             (e.g. {\it pol\_num=(0,Npol\_comp-1)}).
+
+\vspace{0.1in}
+\noindent{\it iblock}:  An index that runs over all the blocks in a
+                        given polymer component.
+                        (e.g. {\it iblock=(0,Nblock[pol\_num]-1)}).
+
+\vspace{0.1in}
+\noindent{\it Npol\_comp}: Enter the total number of (co)polymer
+                          components in the mixture of interest.
+
+\vspace{0.1in}
+\noindent{\it Nblock[pol\_number]}: Enter the number of distinct blocks
+                          in each of the polymers of interest.
+
+\vspace{0.1in}
+\noindent{\it block[pol\_num][iblock]}:  Enter the number of polymer
+                          segments in each block of interest.
+
+\vspace{0.1in}
+\noindent{\it block\_type[pol\_num][iblock]}:  Enter the type of
+                          each block of segments.  These must be
+                          indexed starting with zero, and must
+                          run over all the polymer components and
+                          blocks of interest.   The order for
+                          entering this array is
+  $[0][0], [0][1],... [0][Nblock-1[0]],[1][0]....[1][Nblock-1[1], ...$.
+
+\vspace{0.1in}
+\noindent{\it poly\_file}: The file that contains polymer connectivity
+                        and bond symmetries if applicable.  See
+                        the discussion in section \ref{sec:polyfile}.
+
+\vspace{0.1in}
+\noindent{\it NCrfiles}: The number of direct correlation function files
+to be read in.  Up to 4 are allowed.  This is to facilitate careful continuation (or interpolation) between disparate direct correlation functions. (Not relevant to WTC functionals.)
+
+\vspace{0.1in}
+\noindent{\it Crfac}: The multiplicative factor by which the first direct correlation function
+will be multiplied.  This should be between 0 and 1.  The second $c(r)$ will then be
+multiplied by $(1-Crfac)$, and the two direct correlation functions will be mixed.  Note that this definition should be checked in the source code before computing as the desired mixing may be problem dependent.  (Not relevant to WTC functionals.)
+
+\vspace{0.1in}
+\noindent{\it Cr\_file1--Cr\_file4}: These files contain c(r) data from PRISM
+                    calculation.  See a further discussion of PRISM in the
+                    section 5.  Interpolation between the various files will be problem dependent requiring source code modification.  (Not relevant to WTC functionals.)
+                    
+\vspace{0.1in}
+\noindent{\it Cr\_break$[i=0;NCr\_files-2]$}: These parameters define the breakpoints between different $c(r)$ files with the understanding that the interpolation is being performed in the solvent fraction parameter space of a two component system.  In other words the meaning of this parameter is problem dependent.  (Not relevant to WTC functionals.)
+                    
+\vspace{0.1in}
+\noindent{\it Cr\_rad}: This contains the range of c(r) in units of
+                       $\sigma$, the segment size.  (Not relevant to WTC functionals.)
+
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{SEMI-PERMEABLE SURFACE PARAMETERS}
+{\bf
+These parameters indicate whether a given surface type is
+semi-permeable and to what degree.  We assume that semi-permeable
+membranes have a constant (non-infinite) potential in their
+interior.  The lower this potential, the more material can
+be adsorbed in the surface.}
+
+\vspace{0.1in}
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Lsemiperm[iwall\_type][icomp]
+
+Vext\_membrane[iwall\_type][icomp]
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************** SEMI-PERMEABLE SURFACE PARAMETERS *****************
+@ -2    Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]...
+                 (-2 in first entry will set array to all zeros - FALSE)
+                  (-1 in first entry will set array to all ones -  TRUE)
+@ 0.0   Vext_membrane[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]...
+                   (array automatically zeroed if Lsemiperm first entry is -2
+
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Lsemiperm}: An array of logicals (0=FALSE,1=TRUE)
+that indicates if any wall type is permeable to any of the fluid
+components in the system.  The example shows the order in which
+the array must be entered in the file.  The entire array is set to FALSE if the first entry
+in the input file is -2.  The entire array is set to TRUE if the first entry in the input file
+is -1.
+
+\vspace{0.1in}
+\noindent{\it Vext\_membrane}:  The non-infinite external field
+associated with each of the semi-permeable surfaces.  Note that if the
+first entry in Lsemiperm is -2 then this array will all be set to zero, and will
+not be used by the code.
+\vfill
+\break
+
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{STATE POINT PARAMETERS}
+{\bf  This section sets the
+state point (the density) of the bulk fluid.  }
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it
+
+Rho\_b[icomp]
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************** STATE POINT PARAMETERS ******************************************
+@ 0.001 0.001   Rho_b[icomp], icomp = 0,Ncomp-1  (or Npol_comp-1 for polymers)
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Rho\_b}: The bulk number density (units of $\rho
+\sigma_{ref}^3$) for each fluid component in the system.  For
+polymers, enter the density of each polymer component
+(Npol\_comp).  The code will automatically determine the density
+per segment type.
+
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{CHARGED SURFACE BOUNDARY CONDITION PARAMETERS}
+{\bf  This
+section details the properties of charged surfaces in the system.
+A variety of options are possible from uniform constant surface
+charge boundaries to locating specific charged sites on a
+boundary.    The example shows a case where
+there are two types of surfaces, each with constant surface
+charge (note that the magnitude of the surface charge is read in {\it dft\_surfacess.dat}).  
+In addition, there is one local charge spread over a
+diameter of $0.5\sigma_{ref}$ located at the
+center of the domain.}
+
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Type\_bc\_elec[iwall\_type]
+
+Nlocal\_charge
+
+Charge\_loc[icharge]
+
+Charge\_Diam[icharge]
+
+Charge\_x[icharge][idim]
+
+Charge\_type\_atoms  Charge\_type\_local
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+*************** CHARGED SURFACE BOUNDARY CONDITIONS ***************************
+@ 2  2             Type_bc_elec[iwall_type]
+@  1               Nlocal_charge, # of local charges
+                  (-1 for linear profile of charge between
+                      two points aligned with principle axes.  !!!)
+@  1.0             Charge_loc[0,Nlocal_charge-1]
+@  0.5             Charge_Diam[0,Nlocal_charge-1]
+@  0.0 0.0 0.0     Charge_x[0,Nlocal_charge-1][idim];
+                           [0][0];[0][1];[0][2];[1][0]..
+@  0 0             Charge_type_atoms  Charge_type_local :: values 0,1,2
+
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Type\_bc\_elec}:  This array (length Nwall\_type) stores the
+type of boundary condition for charged systems.
+Possible choices and the associated flags are:
+no charge (0), constant potential (1), constant surface charge (2),
+and charged atoms (3).
+
+
+\vspace{0.1in}
+\noindent{\it Nlocal\_charge}:  The number of local volumetric charges that
+exist within the computational domain.  These charges may or may not be
+located within boundaries of surfaces from which solvent is
+precluded. They just represent source terms in the system of
+equations.  The flag of Nlocal\_charge$=-1$ indicates that two
+charges at two locations in the domain will be entered and there
+should be a linear distribution of charge between these two
+points.
+
+\vspace{0.1in}
+\noindent{\it Charge\_loc}:  This array (of length Nlocal\_charge) stores the
+total charge associated with each site of local charge.
+
+\vspace{0.1in}
+\noindent{\it Charge\_diam}:   This array (of length Nlocal\_charge) stores
+the diameter over which a given local charge should be spread.  If
+Charge\_diam is set to zero, all of the local charge will be put in one
+element of the domain.
+
+\vspace{0.1in}
+\noindent{\it Charge\_x}:  This array (of length [Nlocal\_charge][Ndim])
+stores the positions of the centers of the local volumetric sources of charge.
+The example shows the order in which this array is read into the
+input file.
+
+\vspace{0.1in}
+\noindent{\it Charge\_type\_atoms and Charge\_type\_local}:  This parameter
+indicates how atomic or local charges are to be smeared in the domain.  The options
+are:
+
+\begin{itemize}
+
+\item {\it Charge\_type\_xxx}=0 : Smear the charges over the indicated diameter.
+For a local charge this would be given by {\it Charge\_diam}.  For an atomic
+charge, this would be indicated by $\Sigma_ww$.
+
+\item {\it Charge\_type\_xxx}=1 : Approximate point charges by putting all the
+charge in one element at the center of the atom (given by {\it WallPos[]})
+or local charge (given by {\it Charge\_x}).
+
+\item {\it Charge\_type\_local}=2 : Smear the charge over every element in the
+domain.  This is a uniform background charge.  It is only available for the
+local charges - not the atoms.
+\end{itemize}
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{DIELECTRIC CONSTANT PARAMETERS}
+{\bf  This section
+defines how dielectric constants will be treated in the system.\footnote{This section is only read in if $Type\_coul>-1$.}}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it
+Type\_dielec
+
+Dielec\_bulk \ \ \ Dielec\_pore \ \ \ Dielec\_X
+
+Dielec\_wall[iwall\_type]
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************** DIELECTRIC CONSTANTS ************************************
+@ 0                Type_dielec
+@ 1.0  0.5  2.0    Dielec_bulk  Dielec_pore  Dielec_X
+@ 1.0  1.0 1.0     Dielec_wall[i]  i=1,Nwall_type
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Type\_dielec}:  This flags sets how dielectric
+constants will be treated for a given run.  Options are: set
+$\epsilon$ constant everywhere in domain including surfaces (option 0),
+give surfaces and fluid different dielectric constants (option 1),
+give {\it pore} fluid and {\it bulk} fluid different dielectric
+constants (option 2), or set constant $\epsilon$ in walls, but
+make it a function of density in the fluid (option 3).  All
+dielectric constants are read in as a function of the reference
+value, $\epsilon_{ref}$.  For water, $\epsilon_{ref}=78$.
+
+\vspace{0.1in}
+\noindent{\it Delec\_bulk}: The ratio $\epsilon/\epsilon_{ref}$
+in the bulk fluid.  This should be 1.0 provided the bulk is
+used as the reference fluid.
+
+\vspace{0.1in}
+\noindent{\it Dielec\_pore}: The ratio $\epsilon/\epsilon_{ref}$
+in the pore fluid.
+
+\vspace{0.1in}
+\noindent{\it Dielec\_X}:  The distance from the surfaces that
+will be considered {\it pore} fluid.
+
+\vspace{0.1in}
+\noindent{\it Dielec\_wall[]}:  An array (of length Nwall\_type) that
+stores the ratio $\epsilon/\epsilon_{ref}$ of each surface in the system.
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{DIFFUSION PARAMETERS}
+{\bf  This
+section sets boundary conditions for steady-state transport
+calculations.  In these cases, there is a chemical potential
+gradient in the system, so one bulk density state point is not
+sufficient to define the system.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Lsteady\_state
+
+Grad\_dim \ \  L1D\_bc \ \ X\_1D\_bc
+
+
+x\_const\_mu
+
+Geom\_Flag \ \ Nseg
+
+Radius\_L \ \  Radius\_R \ \  Length
+
+Rho\_b\_Left[icomp]
+
+Rho\_b\_Right[icomp]
+
+
+D\_coef[icomp]
+
+Elec\_pot\_L \ \ Elec\_pot\_R
+
+Velocity
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************* DIFFUSION PARAMETERS ********************************
+@   0  0    Lsteady_state  (0=equilibrium problem, 1=steady state problem)
+@   0       Grad_dim direction of gradient (0=x, 1=y, 2=z)
+@   5.0     x_const_mu (on both sides of domain).
+@   0  1    Geom_Flag; (0=unit area; 1=cyl pore; 2=vary pore) Nseg (# pore segments)
+@   2.5 0.75 4.    Radius_L, Radius_R, Length
+@   0.141  0.312   Rho_b_Left[Icomp]  B.C. on left or bottom or back
+@   0.312 0.141    Rho_b_Right[Icomp] B.C. on right or top or front
+@   0.32 0.32 4.e-6  4.e-7   D_coef[icomp] Diff Coeff per component (cm^2/sec)
+@  0. 0.0   Elec_pot_L,      Elec_pot_R B.C. on elec. potential lbb and rtf
+@   -0.05  -0.035            Velocity
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Lsteady\_state}:
+Logical ($0=$FALSE, $1=$TRUE) that indicates whether this run is a
+steady state calculation with inhomogeneous boundary conditions.
+If Lsteady\_state $=0$, the remainder of the lines in this section
+are not read in.
+
+\vspace{0.1in}
+\noindent{\it Grad\_dim}:  This constant indicates in which
+dimension the chemical potential gradient exists.  Currently, the
+code is only set up to allow inhomogeneous boundary conditions in
+one dimension.  The options are $0=x$, $1=y$, and $2=z$.
+
+\vspace{0.1in}
+\noindent{\it L1D\_bc}:  A logical (0=FALSE : 1=TRUE) indicating
+whether or not a 1D boundary condition should be applied at the
+ends of a 2D or 3D box in the Grad\_dim direction.  This is useful
+when studying electrolytes and the Debye length is significantly
+longer than the local structue near a surface at the center of the
+box.  Then much of the computational cost of increasing box size
+to account for the proper decay can be mitigated.
+
+\vspace{0.1in}
+\noindent{\it X\_1D\_bc}:  The distance over which the 1D boundary should
+be applied.
+
+\vspace{0.1in}
+\noindent{\it x\_const\_ mu}:  This constant indicates the distance
+in the {\it Grad\_dim} dimension where the chemical potential is
+held constant.  This constant region will be a bulk
+fluid far enough away from any surfaces in the transport region.
+
+\vspace{0.1in}
+\noindent{\it Geom\_Flag}: This flag indicates if the
+area of a pore varies in the {\it Grad\_dim}
+dimension.  This switch is only active for 1D calculations.
+
+\vspace{0.1in}
+\noindent{\it Nseg}: This constant sets how many pore segments
+of different geometry there are for a given pore.  For example
+if there is a cylindrical pore with tapered ends, there would
+be three segments.
+
+\vspace{0.1in}
+\noindent{\it Radius\_L}: An array of length {\it Nseg} that stores
+the radius of the left (or bottom or back) side of the pore segment.
+
+\vspace{0.1in}
+\noindent{\it Radius\_R}: An array of length {\it Nseg} that stores
+the radius of the right (or top or front) side of the pore segment.
+
+\vspace{0.1in}
+\noindent{\it Length}: An array of length {\it Nseg} that stores
+the length of each pore segment.
+
+\vspace{0.1in}
+\noindent{\it Rho\_b\_Left}:  An array of length {\it Ncomp} that
+stores the constant bulk densities on the left (or bottom or back)
+boundary condition.  Note that for these inhomogeneous problems,
+only constant bulk boundaries (with different values) are allowed.
+
+\vspace{0.1in}
+\noindent{\it Rho\_b\_Right}:  An array of length {\it Ncomp} that
+stores the constant bulk densities on the right (or top or front)
+boundary condition.  Note that for these inhomogeneous problems,
+only constant bulk boundaries (with different values) are allowed.
+
+\vspace{0.1in}
+\noindent{\it D\_coeff}:  An array of length {\it Ncomp} that
+stores the diffusion coefficient for each species in the problem
+of interest.
+
+\vspace{0.1in}
+\noindent{\it Elec\_pot\_L}:  This constant stores the electric
+potential on the left (or bottom or back) side of the domain.
+
+\vspace{0.1in}
+\noindent{\it Elec\_pot\_R}:  This constant stores the electric
+potential on the right (or top or front) side of the domain.
+
+\vspace{0.1in}
+\noindent{\it Velocity}:  This constant accounts for center of
+mass motion in transport in these steady state problems.
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{STARTUP CONTROL PARAMETERS}
+{\bf  These settings determine
+how a given run will be started.  The variety of options is
+optimized for a variety of problems from studying wetting to
+studying steady state transport.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Iliq\_vap
+
+Iguess
+
+Nsteps
+
+Orientation\_step[istep]
+
+Xstart\_step[istep]
+
+Xend\_step[istep]
+
+Rho\_step[icomp][istep]
+
+Restart
+
+ Rho\_max
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************** STARTUP CONTROL PARAMETERS ********************************
+@  -1            Iliq_vap (-2=don't compute coexistence 
+                                      -1=compute coexistence,
+                                        1=compute a Wall-Vapor profile, 
+                                        2=compute a Wall-Liquid profile
+                                        3=compute a Liquid-Vapor profile)
+@  -3          Iguess
+                     -3:    Constant Bulk Density
+                     -2:    Constant liquid coexistence density
+                     -1:    Constant vapor coexistence density
+                      0:     rho_bulk*exp(-Vext/kT)
+                      1:     rho_liq*exp(-Vext/kT)
+                      2:     rho_vap*exp(-Vext/kT
+                      3:     step function
+                      4:     chopped profile: to rho_bulk
+                      5:     chopped profile: to rho_liq
+                      6:     chopped profile: to rho_vap
+                      7:     chopped profile: to rho_step
+                      8:     linear profile
+
+@  1                  Nsteps
+@  0                 Orientation_step[istep]
+@  -5.0  -5.0    Xstart_step[istep]                      
+@   5.0  5.0      Xend_step[istep]                      
+@  0.1 0.1        Rho_step[icomp][istep]
+
+@ 0              Restart 
+                          0=no - use Iguess to determine initial guess 
+                          1=yes - use guess from dft_dens.dat 
+                          2=yes, but w/ step function at Xstart_step[0] 
+                          3=yes for densities but not elec.pot or chem.pot.
+                          4=yes also restart external field from file
+                          5=use 1D profile as initial guess for 2 or 3D calculation
+@  1000.     Rho_max   
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Iliq\_vap}:
+Indicates whether this run is to use the entered state point parameters
+{\it Rho\_b} or whether the profile should be set up for a fluid
+at liquid-vapor coexistence.  In the latter case, the {\it Temp}
+parameter is used to first find coexistence, and then the
+bulk densities/chemical potentials are set to coexistence values.
+The choices are: off coexistence and don't calculate coexistence
+properties (-2); off coexistence, but want to calculate
+the bulk coexistence properties (-1), at coexistence on the vapor side
+ (1), at coexistence on the liquid side (2), doing a liquid-vapor interface (3).
+This parameter is particularly useful when performing wetting studies
+or calculating contact angles. Liquid-vapor coexistence can only be
+calculated at this time for Lennard-Jones fluids of one
+component.  So for all other systems, set Iliq\_vap to -2.
+
+\vspace{0.1in}
+\noindent{\it Iguess}:
+This parameter sets the initial guess type for cases where
+there is no restart file.  There are many options, the best of which
+depends on the type of run being performed.  Options are:
+
+\begin{itemize}
+\item{-3: CONST\_RHO: a constant density with $\rho=\rho_b$.}
+\item{-2: CONST\_RHO\_L: a constant density with $\rho=\rho_{coex}^{liq}$.}
+\item{-1: CONST\_RHO\_V: a constant density with $\rho=\rho_{coex}^{vap}$.}
+\item{0: EXP\_RHO: an ideal gas profile with $\rho=\rho_b \exp(-V_{ext}/kT)$.}
+\item{1: EXP\_RHO\_L: an ideal gas profile with $\rho=\rho_{coex}^{liq} \exp(-V_{ext}/kT)$.}
+\item{2: EXP\_RHO\_V: an ideal gas profile with $\rho=\rho_{coex}^{vap} \exp(-V_{ext}/kT)$.}
+\item{3: STEP\_PROFILE:  a stepped profile defined in more detail by the parameters
+{\it Nsteps}, {\it Orientation\_step}, {\it Xstep\_start}, {\it Xstep\_end}, and
+{\it Rho\_step}.}
+\item{4: CHOP\_RHO: a chopped profile where an old density profile is 
+read in, and then the profile is chopped off at a distance {\it Xstep\_start[0]}
+from the surfaces.  The remainder of the profile is replaced with $\rho_b$.}
+\item{5: CHOP\_RHO\_L: Same as CHOP\_RHO except the remainder of the profile is replaced with
+$\rho_{coex}^{liq}$.}
+\item{6: CHOP\_RHO\_V: Same as CHOP\_RHO except the remainder of the profile is replaced with
+$\rho_{coex}^{vap}$.}
+\item{7: CHOP\_RHO\_STEP: Same as CHOP\_RHO except the remainder of the profile is replaced with
+$Rho\_step[0]$.}
+\item{8: LINEAR:  linear profile between  $\rho_{Left}$
+and $\rho_{Right}$ defined in the steady-state diffusion section. 
+Use this option for steady-state problems
+with inhomogeneous boundary conditions.}
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Restart}: This switch controls whether the run will start
+from a new initial guess or from an old density file(s).  
+
+\begin{itemize}
+\item 0:  No restart file: use guess indicated by {\it Iguess}.
+
+\item1:  Restart from default files.  The files
+that are needed to perform a restart are: dft\_dens.dat for
+all systems, and in addition dft\_dens.datg for CMS polymer calculations.  The former contains the density and field variables while the latter stores the chain information in the $G$ functions. In order to do binodal calculations, the files
+dft\_dens2.dat (and dft\_dens2.datg for CMS polymers) will be required, which give the second profile on which binodal calculations are performed.
+
+\item 2:  Restart from files, but step the profile as indicated by {\it Iguess} parameter
+
+\item 3:  Restart density
+unknowns only.  Set nonlocal densities, $n({\bf r})$,
+electric potential, $\psi({\bf r})e/kT$, or $G({\bf r})$ variables to
+simple initial guesses. 
+
+\item 4:  Restart solution fields from files.  Also restart external field from the files
+{\it dft\_vext.dat} and {\it dft\_zeroTF.dat}.
+
+\item 5: Use a 1-dimensional solution field as an initial guess for a 2 or 3 dimensional calculation.  The 1-dimensional solution is simply replicated in the y and/or z directions. 
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Rho\_max}:  This is the maximum density allowed for
+continuation from an old profile when MESH continuation is
+performed.  Again very large densities can be difficult to
+converge.
+
+\vfill
+\break
+
+
+%\vspace{0.1in}
+\subsection{OUTPUT FORMAT PARAMETERS}
+{\bf  These parameters just set
+the format for various output files and parameters in the code.
+The optimal output format usually depends on what one is
+trying to study.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Lper\_area  Lcount\_reflect  Lprint\_gofr   Lprint\_uww
+
+Print\_rho\_type
+
+Print\_rho\_switch \ \  Print\_mesh\_switch
+
+IWRITE
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************* OUTPUT FORMAT PARAMETERS ****************************************
+              *************************************************************
+              **** set how you would like all of the output to print ******
+              *************************************************************
+@  0 1 0 0        Lper_area Lcount_reflect  Lprint_gofr  Lprint_uww
+@  0         Print_rho_type
+@  1   0     Print_rho_switch    Print_mesh_switch:
+@  1         IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE)
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Lper\_area}:  Switch to indicate how the user would like principle
+output parameters (Adsorption, Free Energy, Charge in the fluid, and Force) to
+be printed.  Note that this is a tricky quantity to define for any complex
+3-dimensional system.  However, it can be useful to report per unit area results
+for simple surface geometries.  Options include:
+
+\begin{itemize}
+\item Give extensive result - don't divide by area (option 0).  It should
+be noted that 1D problems are inherently reported per unit area, and 2D
+problem results are reported per unit length.
+
+\item Report based on the total exposed surface area in the system (option 1).
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Lcount\_reflect}: If TRUE (1) compute energies and adsorptions based
+on the total domain accounting for reflections.  If FALSE (0) just compute for the 
+computational box ignorning reflections.
+
+
+\vspace{0.1in}
+\noindent{\it Lprint\_gofr}: For the special case of one fixed atom or
+molecule in a fluid, it is of interest to compute g(r).  In this case
+the radial distance from every mesh point is calculated and the normalized
+density, $\rho(r)/\rho_b$ is reported as a function of r from the central atom
+of interest.
+
+\vspace{0.1in}
+\noindent{\it Lprint\_uww}: Print out the direct surface-surface interactions as well as the excess surface free energy.
+
+\vspace{0.1in}
+\noindent{\it Print\_rho\_type}:  This switch sets the way the
+solution data ($\rho({\bf r})$,$n({\bf r})$, $\psi({\bf r})$,
+$\mu({\bf r})$, $G({\bf r})$) will be written to files.  The options are:
+
+\begin{itemize}
+\item 0: Put all output in dft\_dens.dat, dft\_dens2.dat
+(Lbinodal=TRUE), or dft\_dens.datg (CMS\_POLYMER).  This option
+overwrites the file as continuation proceeds.
+
+\item 1: Put the output from each run in a different file
+numbered as dft\_dens.0, dft\_dens.1, etc. (given continuation
+in one field only).
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Print\_rho\_switch}:  This switch determines how densities
+will be printed in the dft\_output.dat file when doing continuation runs.  Depending on the type of
+run being performed, different renditions of the densities may be useful.
+The options are:
+
+\begin{itemize}
+\item 0: Include only densities as $\rho_b \sigma^3$.
+
+\item 1: Include the value of $p/p_{sat}$ where $p_{sat}$
+is the saturation pressure of the fluid at the given temperature.
+This is applicable only to a 1 component LJ fluid.
+
+\item 2: Include the Debye screening length $k^{-1}$: This is applicable
+only to electrolyte fluids.
+
+\item 3: Include chemical potentials, $\mu/kT$.
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Print\_mesh\_switch}: This switch sets how the mesh will be represented in the
+file dft\_output.dat when doing mesh continuation runs.  The options are to print the surface separations
+between all pairs of surfaces in the domain (0) or to print the surface
+positions at the center of each surface (1).
+
+\vspace{0.1in}
+\noindent{\it IWRITE}:  This switch controls how much output will be
+printed. For minimal output (no density profiles) enter 0; for minimal
+output plus density profiles enter 1; to eliminate all screen output enter 2,
+or for verbose printing enter 3.
+The files printed in each case are detailed below in the section on output files.
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{COARSENING SWITCHES}
+{\bf  These parameters provide a
+variety of ways to coarsen the integrals in the residual and/or
+Jacobians in order to save computational cost. }
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Nzone
+
+Rmax\_zone[izone]
+
+Coarsen\_resid
+
+Coarser\_jac \ \ \ Esize\_jacobian
+
+Ljac\_cut  Jac\_threshold
+
+Matrix\_fill\_flag
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+*********** COARSENING SWITCHES ************************************************
+@  1             Nzone (Coarsens Mesh/Jacobian by factor of 2)
+@  0.0           Rmax_zone[Nzone-1] [0.0 for complete coarsening]
+@  0             Coarsen_Residual ? (0=NO, 1=YES)
+@  0  0.25       Coarser_jac; Esize_jacobian
+@  0   100.      Ljac_cut   Jac_threshold
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Nzone}:  The number of zones the domain will be
+split into based on the geometry of the surfaces.  These zones
+will control where residual or Jacobian coarsening is applied.
+
+\vspace{0.1in}
+\noindent{\it Rmax\_zone[]}:  An array containing the distances from the surfaces
+where the various zones are active.  The length of the array is
+{\it Nzone-1}.  This zoning works for any surface geometry of
+interest.
+
+\vspace{0.1in}
+\noindent{\it Coarsen\_resid}:  Logical ($0=$FALSE : $1=$TRUE) to indicate
+if the residual equations will be coarsened according to the
+zones.  In this case, the coarsening occurs in powers of two for
+each zone away from the surface, and the residual equations at the
+coarsened nodes are changed from the euler-lagrange equations (or
+other equations such as nonlocal density equations) to a linear
+average of the surrounding nodes.  These averaging equations are
+practically free of computational cost compared with all other
+equations in the system.
+
+
+\vspace{0.1in}
+\noindent{\it Coarser\_jac}:  This flag sets the type of Jacobian
+coarsening that will be performed for a given calculation.  The
+options are: 
+
+\begin{itemize}
+\item 0: No Jacobian coarsening beyond the coarsening of the
+zones and residuals.
+
+\item 1: Coarsen the Jacobian integrals in the finest zone (nearest
+the surfaces) by an extra power of two.
+
+\item 2: Coarsen all but most coarse zone by an extra factor
+of two.
+
+\item 3: Use the mesh spacing in the coarsest zone for
+Jacobian integrals in every zone.
+
+\item 4: Use the mesh spacing in the second to the coarsest
+zone for Jacobian interals everywhere except in the coarsest zone.
+
+\item 5:  Use a constant mesh spacing ({\it Esize\_jacobian})
+to define Jacobian integrals everywhere in the domain.
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Esize\_jacobian}:  See previous definition (option 5
+only).
+
+\vspace{0.1in}
+\noindent{\it Ljac\_cut}:  A logical that indicates whether the
+Jacobian integrals will be cut off at some threshold value
+(see next definition).  This may be useful for attractive systems
+with rather long cutoffs.
+
+\vspace{0.1in}
+\noindent{\it Jac\_threshold}:  The threshold value for whether
+or not to include a given point in the integration stencil.  A
+value of 100 indicates that you will reject all points smaller
+than 100 times less than the maximum value in the stencil.
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{NONLINEAR SOLVER PARAMETERS}
+{\bf  These parameters
+control the Newton's method constraints and the load balancing
+options.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it Max\_Newton\_iter
+
+Newton\_rel\_tol \ \  Newton\_abs\_tol  \ \ Min\_update\_frac
+
+Load\_Bal\_Flag
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************ NONLINEAR SOLVER PARAMETERS *************************************
+@ 50               Maximum # of Newton Iterations
+@ 1.0e-5 1.0e-10 0.2  Relative conv. tol,  Absolute conv. tol., min update fraction
+@ 2                Load balance switch (0=linear,1=box,2=weights,3=timings)
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Max\_Newton\_iter}:  The maximum number of Newton iterations the code will peform before exiting.
+
+\vspace{0.1in}
+\noindent{\it Newton\_rel\_tol}:
+Relative convergence tolerance for the nonlinear solver.
+
+\vspace{0.1in}
+\noindent{\it Newton\_abs\_tol}:
+Absolute convergence tolerance for the nonlinear solver.
+
+\vspace{0.1in}
+\noindent{\it Min\_update\_frac}:  During the Newton-Raphson solve, the code will mix some fraction of the new solution in with the old solution at each iteration.  This parameter sets the minimum fraction of the new solution used.  The code will actually use a fraction between Min\_update\_frac and 100\% (of the new solution).
+
+\vspace{0.1in}
+\noindent{\it Load\_Bal\_Flag}:
+
+\vfill
+\break
+
+%\vspace{0.1in}
+\subsection{LINEAR SOLVER PARAMETERS}
+{\bf  These parameters define
+how the iterative linear solves (Aztec) will be performed.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it
+
+L\_Schur Az\_solver  Az\_kspace
+
+Az\_scaling
+
+Az\_preconditioner \ \ Az\_ilut\_fill\_param
+
+Max\_gmres\_iter   Az\_tolerance
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************ LINEAR SOLVER PARAMETERS ****************************************
+@  0 0 100    L_Schur  Az_solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab)  Az_kspace
+@  0           Scaling (-1=none, 0=row_sum, 1=Jacobi, 2=symrow_sum)
+@  -1    4     Preconditioner (-1=none, 0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, ilut), Az_ilut_param
+@ 100 1.0e-6     Max iterations and Convergence Tolerance for Linear Solver
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it L\_Schur}: Flag for using the Schur solvers, as described in \cite{heroux}.  Options are: 0: don't use Schur solver; 1: do use Schur solver.  For many problems the Schur solvers result in faster convergence.
+
+\vspace{0.1in}
+\noindent{\it Az\_solver}: If {\it L\_Schur} = 0, then the code uses the linear solver specified here.  
+
+\vspace{0.1in}
+\noindent{\it Az\_kspace}:
+
+\vspace{0.1in}
+\noindent{\it Az\_scaling}:
+
+\vspace{0.1in}
+\noindent{\it Preconditioner}: Only used for  {\it L\_Schur} = 0.  Some amount of preconditioning is usually helpful for convergence.
+
+\vspace{0.1in}
+\noindent{\it Az\_ilut\_param}: Sets the level of preconditioning to use.
+
+\vspace{0.1in}
+\noindent{\it Max\_gmres\_iter}: Maximum number of iterations for the linear solver.
+
+\vspace{0.1in}
+\noindent{\it Az\_tolerance}:  Convergence tolerance for the linear solver.
+
+
+\vfill
+\break
+
+\subsection{MESH CONTINUATION PARAMETERS}
+{\bf  This section sets
+parameters for performing mesh continuation runs.  This type
+of continuation is not allowed by the LOCA libraries because the
+mesh cannot be changed continuously.}
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it N\_runs
+
+Del\_1[idim=0 to Ndim-1]
+
+Plane\_new\_nodes  Pos\_new\_nodes
+
+Guess\_range[0] \ \ Guess\_range[1] 
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************* MESH CONTINUATION PARAMETERS ************************************
+               Here you enter information for mesh continuation.
+               All other types are handled by LOCA
+@  10      N_runs
+@  -.2 0.0 0.0        Del_1[idim=0;Ndim]  How much to change parameter.
+@  0   0      Plane_new_nodes     Pos_new_nodes
+                  (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
+@ 0 0  Guess_range[]
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it N\_runs}:  The number of mesh continuation steps to be performed.  To not perform mesh continuation (i.e. just do 1 run), set N\_runs = 1.
+
+\vspace{0.1in}
+\noindent{\it Del\_1[]}:  This array stores the amount the mesh
+size will be varied for each run.  Note that all the mesh dimensions
+(x, y, and z) may be changed simultaneously.
+
+\vspace{0.1in}
+\noindent{\it Plane\_new\_nodes}: Mesh continuation involves changing the mesh size by
+insertion or deletion of plane(s) of nodes.
+The orientation of the new plane(s) of nodes must be
+indicated.  The options are: yz-plane (0), xz-plane (1), and xy-plane (2).
+
+\vspace{0.1in}
+\noindent{\it Pos\_new\_nodes}:  The position of the new plane(s) of nodes must also be indicated.
+The options are to add/delete the plane(s) of nodes from one
+of three positions: left-bottom-back (-1), center of box (0),
+and right-top-front (1).
+
+
+\vspace{0.1in}
+\noindent{\it Guess\_range[]}:  This array stores two surface
+separations, and is used when performing mesh continuation
+specifically for the case of two interacting surfaces.  Usually
+this type of calculation corresponds to potential of mean force
+calculations. Guess\_range[0] stores the maximum surface
+separation where Rho\_b will be used as an initial guess while
+Guess\_range[1] stores the minimum surface separation where the
+previous solution will be used as an initial guess.  This
+heuristic parameter has been implemented because there are times
+when very steep density profiles between two surfaces will not
+allow for easy convergence, and it is better to start over from
+a bulk density initial guess.  Between Guess\_range[0] and
+Guess\_range[1], a mixing of the old solution and the bulk density
+is performed.
+
+
+\vfill
+\break
+\subsection{ARC-LENGTH CONTINUATION PARAMETERS}
+{\bf  These parameters define
+how arc-length continuation will be performed.  The algorithms are described in \cite{salinger}. }
+
+\noindent=====================================================
+
+{\bf Prototype}
+
+{\it  Continuation Method
+
+Continuation parameter \ \  Scale\_fac
+
+Step\_size
+
+N\_steps  \ \ step control aggressiveness
+
+Second continuation parameter
+
+}
+
+\noindent=====================================================
+
+{\bf Example}
+
+\begin{verbatim}
+************ ARC-LENGTH CONTINUATION PARAMETERS************************
+@  2      Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
+                         3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
+@  2   1.0    Continuation parameter :  Scale_fac (for CONT_SCALE cases only)
+                        CONT_TEMP        1   /* State Parameters */
+                        CONT_RHO_0       2
+                        CONT_RHO_ALL     3
+                        CONT_LOG_RHO_0   4
+                        CONT_LOG_RHO_ALL 5
+                        CONT_SCALE_RHO   6
+
+                        CONT_EPSW_0      7    /* Wall-Wall Energy Params */
+                        CONT_EPSW_ALL    8
+                        CONT_SCALE_EPSW  9
+
+                        CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
+                        CONT_EPSWF_ALL_0 11
+                        CONT_SCALE_EPSWF 12
+
+                        CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
+                        CONT_EPSFF_ALL   14
+                        CONT_SCALE_EPSFF 15
+
+                        CONT_SCALE_CHG   16  /* Charged surface params */
+                        CONT_SEMIPERM    17  /* Vext_memebrane */
+                        CONT_WALLPARAM   18  /* WallParam */
+                                                                                                                    
+                        CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
+                                                                                                                   
+@  0.05   Parameter initial step size
+@  10  0.25  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
+@  2       Second parameter for Spinodal and Binoadal Calculations (Same list).
+***********************************************************************
+\end{verbatim}
+
+\noindent=====================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it Continuation method}:  This flag specifies which continuation method to use.  Options are:
+
+\begin{itemize}
+\item -1: none
+
+\item 0: 0th order continuation using a constant step (non-adaptive).
+
+\item 1: 1st order continuation.
+
+\item 2: 2nd order, i.e. arc-length, continuation.
+
+\item 3: Track spinodal (turning) points.  If restarting, this requires two density files as input (dft\_dens.dat and dft\_dens2.dat).
+
+\item 4: Track binodal points, i.e.\ two different state points with the same free energy.  Use for following phase transitions.    If restarting, this option also requires two density files as input, containing the two different density profiles at the desired free energy.
+\end{itemize}
+
+\vspace{0.1in}
+\noindent{\it Continuation parameter}:  The continuation is a function of this parameter, which must be a continuous variable in the system.  Various options are provided, and more can be added by adding extra cases into dft\_continuation.c.  The options shown in the example include continuation in temperature, various combinations of bulk densities, various energetic $\epsilon$ parameters, charges, wall permeabilities, and scale factors for CMS-polymer $c(r)$ functions.  It is advisable to check the source code in dft\_continuation.c to determine exactly which variable is being changed in each option.
+
+\vspace{0.1in}
+\noindent{\it Scale\_fac}: Some of the continuation variables can be changed by a multiplicative scaling factor given by this value, as opposed to increasing or decreasing the parameter.  In these cases, {\it Scale\_fac} itself is the continuation parameter.  These cases are identified by the word SCALE in the name.
+
+\vspace{0.1in}
+\noindent{\it Step\_size}
+Initial value for the change in the parameter.  This will be adjusted by the algorithm as continuation proceeds.  Large values will sometimes fail to converge, while small values can lead to very small step sizes along a continuation curve.
+
+\vspace{0.1in}
+\noindent{\it N\_steps}:
+The number of continuation steps to perform.
+
+\vspace{0.1in}
+\noindent{\it step control aggressiveness}: 
+A measure of how fast the algorithm will step along the continuation curve.
+
+\vspace{0.1in}
+\noindent{\it Second continuation parameter}:
+For binodal calculations (method 4), this is the second parameter that is varied in order to keep the two systems at the same free energy.  It can be any of the implemented continuation parameters in the code.   For example, one might have a phase transition at a given chemical potential (Rho\_b) and temperature, and the goal is to track the transition as a function of temperature.  Then the temperature should be the first continuation variable, that will be increased or decreased as specified by {\it Step\_size}, and the chemical potential variable will be the second parameter and this will be adjusted by the code as necessary in order to maintain the system at the phase transition.
+
+
+
+\vfill
+\break
+
+\section{{\it dft\_surfaces.dat}}
+\label{sec:surfaces}
+The second required input file (except in the case where there are no surfaces in the domain) contains the
+locations of the centers of the surfaces of interest.  This data must be
+located in a file called {\it dft\_surfaces.dat}.  The first column should
+indicate the type of the surface of interest, the second column indicates
+the linkage of the surface with other surfaces, the next {\it Ndim} columns give
+the position of the center of the surface of interest, and finally the last column gives
+the charge on each surface.  The number of position
+coordinates that should be found in this file is equal to the number
+of dimensions in the calculation.  Unique surface types are distinguished
+by any property from surface shape to interaction strengths.  The array of
+surface types starts with zero (C convention).  An example of
+the {\it dft\_surfaces.dat} file for a case with 4 surfaces, 2 surface
+types, and 3 independent surfaces is shown below.
+
+The {\it Link} array is used to denote which of the individual surfaces are grouped into compound surfaces.  Thus every surface with the same {\it Link} parameter is considered to be part of the same compound surface.
+It is desirable to link surfaces together in a variety of
+circumstances.  One example is if all the surfaces are individual
+atoms of one macromolecule.  Another example is if one wants to
+study a chemically heterogeneous surface.  In the latter case two
+surface types are needed, and the walls are positioned so they
+touch each other.  The linkage array then indicates that they are
+really part of the same surface.  Linkage is particularly
+important when one wants to calculate the force on a compound
+surface.
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype for {\it dft\_surfaces.dat} file}
+
+{\it WallType[iwall] \ \ Link[iwall] \ \ WallPos[iwall][idim=0] \ \
+WallPos[iwall][idim=1]\ \ WallPos[iwall][idim=2] \\Elec\_param\_w[iwall]}
+
+\noindent===========================================================
+
+{\bf Example for {\it dft\_surfaces.dat} file}
+
+\begin{verbatim}
+0  0   0.0  0.0  0.0   0.0
+1  0   1.0  0.0  0.0   0.0
+0  1   0.0  1.0  0.0   0.0
+
+1  2   0.0  0.0  1.0   0.0
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it iwall}: The index over the number of surfaces, {\it Nwall}, in the system
+{\it iwall=\{0,Nwall-1\}}.
+
+\vspace{0.1in}
+\noindent{\it idim}: The index over the number of dimensions, {\it Ndim} in the system
+{\it idim=\{0,Ndim-1\}}.
+
+\vspace{0.1in}
+\noindent{\it WallType}: An array containing the type of each surface in the system.
+
+\vspace{0.1in}
+\noindent{\it Link}:  An array containing the linkage of each surface to a
+larger compound surface.
+
+\vspace{0.1in}
+\noindent{\it WallPos}:  An array containing the position of the center of
+each surface in the system.  Note that if the flag -9999. is entered in any of the wall
+positions, the surface will be randomly placed in the domain.  If conditions on the
+placement are desired (e.g. no overlaps) additional code must be added to the
+file {\it dft\_input.c}.  Also note that the origin is located at the center of the computational domain in the code.  So, the surface positions should lie between {\it -0.5Size\_x[idim]} and {\it 0.5size\_x[idim]}.
+
+\vspace{0.1in}
+\noindent{\it Elec\_param\_w}:  An array containing the electrostatics parameter
+of every surface.  This can be a surface charge (given as $q\sigma^2/e$), surface potential
+(given as $\psi_s e/kT$), or partial charge
+ (given as $Q/e$) as defined in the array Type\_elec\_bc.  If a surface is neutral, enter
+ 0.0 in this array.  
+
+\vfill
+\break
+
+\section{{\it poly\_file}}
+\label{sec:polyfile}
+We now briefly describe the polymer connectivity file.  This file simply identifies the 
+architecture of the chains by defining the number of bonds at each segment as well
+as the bead numbers to which a given segment is bonded.  This file also identifies
+symmetries in the chain so that redundant equations may be removed from the system
+of equations.  The example shows the case of a star polymer
+where a central bead is connected to 4 identical arms.  Each of the arms
+is four beads in length, and the symmetries are enumerated.
+
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype for {\it poly\_file} file}
+
+{\it Nbond[pol\_number][iseg] \ \ Bond[pol\_number][iseg][ibond] \ \ Pol\_Sym[iunk\_bond] }
+
+\noindent===========================================================
+
+{\bf Example for {\it star\_4444\_sym} file}
+
+\begin{verbatim}
+2 -1 -1 1 -1
+2  0 -1 2 -1
+2  1 -1 3 -1
+2  2 -1 4 -1
+4  3 -1 5 -1 9 -1 13 -1
+2 4  7  6  6
+2 5  5  7  4
+2 6  3  8  2
+2 7  1 -1  0
+2 4   7 10  6
+2 9   5 11  4
+2 10  3 12  2
+2 11  1 -1  0
+2 4   7 14   6
+2 13  5 15  4
+2 14  3 16  2
+2 15  1 -1  0
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it pol\_number}: The index over the polymer component of interest.
+
+\vspace{0.1in}
+\noindent{\it iseg}: The index over the polymer segments (beads).
+
+\vspace{0.1in}
+\noindent Note that each line in the file belongs to a particular polymer component and segment, with the order being that first the segments 0--$N_0$ are listed on polymer 0, then the segments 0--$N_1$ on polymer 1, etc.
+
+\vspace{0.1in}
+\noindent{\it ibond}: An index over the bonds connected to a given segment.
+
+\vspace{0.1in}
+\noindent{\it iunk\_bond}: An index that runs from 0 to
+$\sum_{pol\_comp=1}^{Npol\_comp} \sum_{iseg=1}^{Nseg[pol\_comp]} Nbond[pol\_comp][iseg]$
+that is used as an index into the bond equation ($G$) unknowns.  The $ith$
+bond entry in the {\it poly\_file} represents the unknown $iunk\_bond = i-1$.
+
+\vspace{0.1in}
+\noindent{\bf NOTE}:  For
+mixtures, the polymer components must come in the same order as
+defined in the polymer section of the file {\it dft\_input.dat}. 
+
+\vspace{0.1in}
+\noindent{\it Nbond[pol\_number][iseg]}: The total number of bonds connected to a given polymer segment.  Note that for end groups, {\it Nbond+1} is entered
+because there are still two $G$ equations associated with that segment.
+
+
+\vspace{0.1in}
+\noindent{\it Bond[pol\_number][iseg][ibond]}:
+An array containing the segments to which a given [pol\_number][iseg] are bonded.
+The segments of each polymer component should be numbered starting with 0,
+and every end segment should have -1 as one of the bond entries to identify
+that segment as an end group to the code.
+
+\vspace{0.1in}
+\noindent{\it Pol\_Sym[iunk\_bond]}:  An array that identifies symmetries in
+the polymer(s) of interest.  This entry should be $iunk\_bond=-1$ if there are no
+symmetries.  Otherwise enter another bond number ($iunk\_bond=junk\_bond$)
+which is identical to the current entry.  For symmetries, the $G$ equation defined
+above will be replaced with
+%
+\begin{equation}
+G[iunk\_bond]=G[junk\_bond]
+\end{equation}
+%
+%
+\vfill
+\break
+%
+
+\section{{\it Cr\_file.dat}}
+\label{sec:crfile}
+Finally, when using the CMS polymer functionals, an input of the
+direct correlation function is required.  This input could come from  
+PRISM calculations, from simulations, or from experiments.  Note that $c(r)$ does not need to be defined on the same mesh as the rest of the DFT problem, so e.g. in the example, the spacing between $r$ values is 0.04, while the mesh size could be anything, e.g. 0.05 or 0.1, or....
+The code currently
+takes the $c(r)$ for a repulsive chain with the same bond patterns
+as the polymer of interest to the DFT calculations.  Attractions
+are added using the random phase approximation by assuming $c(r)=-u^{att}(r)$ for $r>d$
+as described earlier. An example of the input that will be used
+for a study of an 8-8 diblock copolymer is shown below.  
+
+\vspace{0.1in}
+\noindent===========================================================
+
+{\bf Prototype for {\it Cr\_file.dat} file}
+
+{\it r \ \ Cr[ipol\_comp][jpol\_comp] }
+
+\noindent===========================================================
+
+{\bf Example for {\it crf8.8\_0.7} file}
+
+\begin{verbatim}
+    0.40000E-01    -0.58756E+01    -0.58756E+01    -0.58756E+01
+    0.80000E-01    -0.56529E+01    -0.56529E+01    -0.56529E+01
+    0.12000E+00    -0.54115E+01    -0.54115E+01    -0.54115E+01
+    0.16000E+00    -0.51665E+01    -0.51665E+01    -0.51665E+01
+    0.20000E+00    -0.49236E+01    -0.49236E+01    -0.49236E+01
+    0.24000E+00    -0.46829E+01    -0.46829E+01    -0.46829E+01
+    0.28000E+00    -0.44461E+01    -0.44461E+01    -0.44461E+01
+    0.32000E+00    -0.42130E+01    -0.42130E+01    -0.42130E+01
+    0.36000E+00    -0.39847E+01    -0.39847E+01    -0.39847E+01
+    0.40000E+00    -0.37611E+01    -0.37611E+01    -0.37611E+01
+    0.44000E+00    -0.35430E+01    -0.35430E+01    -0.35430E+01
+    0.48000E+00    -0.33305E+01    -0.33305E+01    -0.33305E+01
+    0.52000E+00    -0.31242E+01    -0.31242E+01    -0.31242E+01
+    0.56000E+00    -0.29242E+01    -0.29242E+01    -0.29242E+01
+    0.60000E+00    -0.27313E+01    -0.27313E+01    -0.27313E+01
+    0.64000E+00    -0.25455E+01    -0.25455E+01    -0.25455E+01
+    0.68000E+00    -0.23676E+01    -0.23676E+01    -0.23676E+01
+    0.72000E+00    -0.21977E+01    -0.21977E+01    -0.21977E+01
+    0.76000E+00    -0.20365E+01    -0.20365E+01    -0.20365E+01
+    0.80000E+00    -0.18843E+01    -0.18843E+01    -0.18843E+01
+    0.84000E+00    -0.17417E+01    -0.17417E+01    -0.17417E+01
+    0.88000E+00    -0.16091E+01    -0.16091E+01    -0.16091E+01
+    0.92000E+00    -0.14871E+01    -0.14871E+01    -0.14871E+01
+    0.96000E+00    -0.13762E+01    -0.13762E+01    -0.13762E+01
+    0.10000E+01    -0.63836E+00    -0.63836E+00    -0.63836E+00
+\end{verbatim}
+
+\noindent===========================================================
+\vspace{0.1in}
+
+\noindent{PARAMETER DEFINITION}
+
+\vspace{0.1in}
+\noindent{\it r}: The first column of numbers contains the distance $r$
+in $c(r)$.  
+
+\vspace{0.1in}
+\noindent{\it C(r)}: The 2nd-nth columns contain direct
+correlation function data in the following order:
+
+\noindent$\bullet$ the self-terms, {\it ii}, are listed first.
+
+\noindent$\bullet$ the cross-terms, {\it ij} follow.
+
+\vspace{0.1in}
+\noindent{} In the example given above, there are three columns because
+the calculation of interest will have an 8-8 diblock copolymer.  The
+first column is read in to correspond to AA interactions, the second
+corresponds to BB interactions, and the third corresponds to AB interactions.
+
+\vfill
+\break
+
+\section{Introduction to output files}
+Here we briefly discuss output generated by the Tramonto code.  There are a variety of files that are generated only if the code is operating in VERBOSE mode.  The primary output is always printed with the exception that the printing of density files can be turned off with $Iwrite=0$.  In addition, we note that all screen output is turned off if $Iwrite=2$.  Both of these options can be useful to prevent needless I/O, and can be particularly important when performing coupled CBMC-DFT calculations.
+
+\subsection{Primary Output}
+\subsubsection{{\it dft\_dens.dat}}
+This file contains the solution vector fields as a function of the position in the mesh.
+The first three columns are $x$, $y$, and $z$.  The following columns are the 
+solution vector.  The first few lines in the file summarize the variables that are printed.  Depending on the calculation performed, these include the densities (for each fluid component), electrostatic field, chemical potentials, CMS-polymer mean fields, hard sphere nonlocal densities, cavity correlation functions for WTC polymer functionals, and bonding nonlocal densities for WTC polymer functionals.   Note that for binodal tracking calculations, a second density file is printed in {\it dft\_dens2.dat}.  Also note that the output can be printed to sequentially numbered files (e.g. {\it dft\_dens.0}, {\it dft\_dens.1}, etc.) using the {\it Print\_rho\_type} parameter described earlier.  
+
+\subsubsection{{\it dft\_dens.datg}}  This file contains the results for the propagator
+equations on the mesh for the case of CMS polymer fluids.
+
+\subsubsection{{\it dft\_output.dat}}  This file contains the principle output of the
+code.  Currently it prints any continuation variables, the number of nonlinear iterations, time to solve, adsorptions, charges, forces, and free energies.
+Note that the first line of output for any continuation run will enumerate the parameter
+names as well as the values to facilitate identification of the various columns in the file.
+
+\subsubsection{{\it dft\_out.lis}}  This file echos the input file and provides details
+of some of the critical setup parameters including number of boundary nodes 
+and surface elements.
+
+\subsubsection{{\it dft\_time.out}}
+Some timing information on the solves.
+
+
+\subsection{Debugging Output}
+These files are only produced when the Iwrite switch is set to VERBOSE (3).  They
+are useful for a variety of debugging tasks.
+
+\subsubsection{{\it cr.out}}
+For CMS polymers, this file prints back out the direct correlation function, as given by the {\it Cr\_file} (see Sec. \ref{sec:crfile}).
+
+\subsubsection{{\it cr.lj.out}}
+For CMS polymers, this file contains the direct correlation function after the LJ attractions have been added to it.
+
+\subsubsection{{\it dens\_iter.dat}} 
+Stores the solution vector as a function of position for each Newton iteration.
+
+\subsubsection{{\it dft\_freen\_prof.dat}}
+For one dimensional systems, $Ndim=1$, this file contains the free energy density as a function of position.  This is related to the surface tension profile of an interface with planar symmetry.
+
+\subsubsection{{\it dft\_vext.dat}}
+This file contains the neutral part of the external field acting on each species
+as a function of position on the mesh.
+
+\subsubsection{{\it dft\_vext\_c.dat}}
+This file contains the Coulombic part of the external field acting on each species
+as a function of position on the mesh.
+
+\subsubsection{{\it dft\_zeroTF.dat}}
+This file contains an array of 0s and 1s (False and True respectively) as a function of
+position on the mesh.  This array shows where the molecular theory density functional
+equations are replaced with the condition density=0 (wherever this array is True).
+
+\subsubsection{{\it dft\_zones.dat}}
+This file contains the zone assignment of every node on the mesh.  
+
+\subsubsection{{\it proc\_mesh.dat}}  This file contains data on the node to processor
+map obtained by the load balancing process.
+
+\subsubsection{{\it Resid2.dat}}
+This file should contain information on the residuals (not currently working).
+
+\subsubsection{{\it rho\_init.dat}}
+This file echoes the initial guess used for a given run.
+
+\subsubsection{{\it rho\_init.datg}}
+For CMS polymers, this file echoes the initial guess for the propagator $G$ functions used for a given run.
+
+\subsubsection{{\it stencil.out}}
+This file contains the integration stencils used for residual and jacobian calculations.  The
+columns are an index, then the Ndim offsets, then the weight.
+
+
+\clearpage
+
+\bibliography{docs_users_guide}
+
+\end{document}

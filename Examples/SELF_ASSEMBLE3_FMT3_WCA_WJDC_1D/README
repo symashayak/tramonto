@@ -1,0 +1,52 @@
+/*! \file 
+ \brief Phase transition tracking of confined lipid assemblies (bilayer/SAM) using 8-2-8 lipid and single site solvent.
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates phase transition tracking in a confined self-assembled system.  It also is a test on the automated setup of linear chains, and a test on binodal tracking that includes surface separation as a fixed stepping parameter.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - dft_dens.dat
+   - dft_dens2.dat
+
+Key Output Parameters (first solution - SAM+bilayer) :
+   - eps_wf[0][0]=0.81289545
+   - niter=3
+   - ads[0]=8.74642 
+   - ads[2]=1.0933
+   - ads[3]=0.240325
+   - omega=-3.29687
+.
+
+Key Output Parameters (first solution - bilayer) :
+   - eps_wf[0][0]=0.81289545
+   - ads[0]=5.54559 
+   - ads[2]=0.693199
+   - ads[3]=4.138963
+   - omega=-3.29687
+.
+
+Key Output Parameters (third solution - SAM+bilayer) :
+   - eps_wf[0][0]=0.82565737
+   - niter=6
+   - ads[0]=8.62331
+   - ads[2]=1.07791
+   - ads[3]=0.227268
+   - omega=-3.22598
+.
+
+Key Output Parameters (third solution - bilayer) :
+   - eps_wf[0][0]=0.82565737
+   - ads[0]=5.50568
+   - ads[2]=0.68821
+   - ads[3]=4.023529
+   - omega=-3.22598
+.
+
+*/

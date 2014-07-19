@@ -1,0 +1,7 @@
+#
+# For a Macintosh running OS X
+#
+cmake \
+     -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
+

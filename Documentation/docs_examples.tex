@@ -1,0 +1,1166 @@
+\documentclass[10pt,onecolumn]{article}
+\usepackage{graphicx}  % graphic defaults
+\special{papersize=8.5in,11in}
+%\textwidth 16.8cm
+\textwidth 7.0in
+\textheight 9.0in
+%\headheight 0.0cm
+\topmargin -0.5in
+\oddsidemargin -1.0cm
+\evensidemargin 0.0cm
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\begin{document}
+% \draft command makes pacs numbers print
+%\draft
+
+\title{
+   EXAMPLES for Tramonto: A Density Functional Theory code for
+   inhomogeneous fluids at equilibrium or steady state}
+
+   % repeat the \author\address pair as needed
+\date{\today}
+\maketitle
+%\protect\begin{abstract}
+%
+
+\tableofcontents
+
+\vfill
+\break
+
+\section{Introduction}
+This document details a suite of  test problems that
+accompanies the Tramonto code.  This test suite is found in a directory
+Tramonto/Examples.
+Here we briefly discuss each of the test problems, present some 
+input files and density distributions, and give the principle outputs (adsorptions, free
+energies, and forces, etc.) for each case.  This test suite should
+be used to test any new additions to the code, and examples of
+new capabilities should be added to the test suite as they become
+available.  Note that under Tramonto/Examples, the input files are found in the
+directories Ex\_inputs, Ex\_surfaces, Ex\_crfiles, Ex\_polyfiles, and Ex\_restarts.  The
+density profile outputs for each case are found in the directory Ex\_dens\_outputs.  If
+a case fails, using the old density output with a restart may be helpful in locating new bugs.
+
+\section{1D Atomic Fluids at Equilibrium}
+\subsection{1 Component Neutral, Hard Sphere system}
+\subsubsection{Case 1Dhn1: Two confining surfaces, high resolution}
+This case solves for a one-component hard sphere
+fluid confined by two hard walls at high resolution.
+
+%The resulting density profile is shown below, and is
+%followed by the input files used to generate the results.
+%Principle output include: 
+ %         excess adsorption, $\Gamma^{ex} \sigma /A=-0.222308$,
+ %         total adsorption, $\Gamma^{ex} \sigma /A=3.527692$,
+%          surface free energy, $\Omega^s \sigma^2/AkT=2.287919$, and
+%          solvation force, $f^s \sigma^3/AkT=5.231941867$.
+
+%\noindent=====================================================
+
+%{\bf Density Profile}
+%
+%\begin{figure}[h] %%        h=here t=top b=bottom p=page
+ %  \begin{minipage}{6.5in}{
+ %     \hbox{
+%      \rotatebox{0}{\resizebox{3.0in}{!}{\includegraphics{ex_pdf/dens1}}}      }
+%   }
+%   \end{minipage}
+%         \hspace{0.1in}
+%      \begin{minipage}{2.2in}{
+%          \protect\caption{
+%          The density in units of $\rho \sigma^3$ as a function
+%          of distance from a hard wall (on the left).            }
+%          \label{fig:fig-pt}
+%      }\end{minipage}
+%\end{figure}
+
+%\noindent =====================================================
+
+%{\bf dft\_surfaces.dat}
+
+%\input{ex_surf/surf1}
+
+%\noindent =====================================================
+
+%\twocolumn
+%\noindent ============================
+
+%{\bf dft\_input.dat}
+
+%\tiny
+
+%\input{ex_in/in1}
+
+%\noindent============================
+%\normalsize
+%\onecolumn
+
+
+\subsubsection{Case 1Dhn2:  2 confining surfaces, lower resolution}  This case repeats
+case 1 at a lower resolution.  $Esize\_x[0]=0.1$.  Principle output for cases 2-11 are given in 
+the table below.
+
+\subsubsection{Case 1Dhn3:  2 confining surfaces, reflective boundary}  This case repeats
+case 2, but in a domain with a reflective boundary on the right side and
+a total domain size of $3\sigma$. 
+
+\subsubsection{Case 1Dhn4:  2 confining surfaces, opposite reflective boundary}
+This case is identical to case 3, but exchanges the left and right boundaries.
+
+\subsubsection{Case 1Dhn5:  1 surface, bulk boundary condition, Matrix\_fill\_flag=0}
+This case is a $10\sigma$ domain with a wall at the left side and a bulk fluid
+at the right side.  It has Matrix\_fill\_flag=0.
+
+\subsubsection{Case 1Dhn6:  1 surface, bulk boundary, 4 zones}
+Same as Case 5 with the domain split into 4 zones with the break points
+at $2\sigma$, $4\sigma$, and $6\sigma$ from the surface.
+
+\subsubsection{Case 1Dhn7:  1 surface, 4 zones, Coarser Jacobian}
+Same as Case 10 with the Jacobian integrals always based on a mesh of $0.2\sigma$.
+
+\begin{table}[h]
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Case & niter & Ex. Ads & Total Ads & Surf. Free Energy & Force \\
+\hline
+1Dhn1 & 6 & -0.222308 & 3.527692 & 2.287919 & 5.231941867 \\
+1Dhn2 & 6 & -0.224384 & 3.525616 & 2.393064 & 5.022083086  \\
+1Dhn3 & 5 & -0.224384 & 3.525616 & 2.393064 & 5.022083086 \\
+1Dhn4 & 5 & -0.224384 & 3.525616 & 2.393064 & 5.022083086 \\
+1Dhn5 & 6 & -0.116036 & 7.008964 & 1.198788 & 4.956897154 \\
+1Dhn6 & 6 & -0.115903 & 7.009097 & 1.152352 & 5.165515814 \\
+1Dhn7 & 5 & -0.115903 & 7.009097 & 1.152352 & 5.165517329 \\
+\hline
+\end{tabular}
+\label{tab:table1}
+\caption{Principle output for 1-dimensional hard sphere/ hard wall cases
+in the test suite.}
+\end{table}
+
+\subsection{1 Component Neutral Lennard-Jones Fluids}
+\subsubsection{Case 1Dljn1: LJ Fluid near LJ wall}
+Dense LJ fluid near a 9-3 LJ wall.  (Check the active potential
+in the dft\_potentials.c file if incorrect answers are obtained.  Those
+given here were generated with the cut and shifted 9-3 potential.
+
+\subsubsection{Case1Dljn2: Test mixing rule}
+Same as Case 12, but with manual input of wall-fluid parameters.
+
+\subsubsection{Case 1Dljn3: Test long wall-fluid cutoffs}
+Same as Case 12, but with wall-fluid cutoff increased from 3 to 20.
+
+\subsubsection{Case 1Dljn4: Test LJ12-6 integrated walls}
+Same as Case 14, but does explicit integration of 12-6 potential
+for external field.  Note that the force calculation is not working for this case yet.
+
+
+\begin{table}[h]
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Case & niter & Ex. Ads & Total Ads & Surf. Free Energy & Force \\
+\hline
+1Dljn1 & 6 & -0.178167 & 6.946833 & -2.861495 & 1.625346852 \\
+1Dljn2 & 6 & -0.178167 & 6.946833 & -2.861495 & 1.625346852 \\
+1Dljn3 & 6 & -0.134113 & 6.990887 & -3.578393 & 1.635907510 \\
+1Dljn4 & 6 & -0.137941 & 6.987059 & -3.527798 & 0.000000000 \\
+\hline
+\end{tabular}
+\label{tab:table1}
+\caption{Principle output for 1-dimensional hard sphere/ hard wall cases
+in the test suite.}
+\end{table}
+
+\subsection{Mixtures}
+
+\subsubsection{Case 1Dmix1: 2 components - neutral hard spheres}
+Two component neutral hard sphere system with same total density as
+case all of the above cases.  Compare results to case 6 above.
+
+\subsubsection{Case 1Dmix2: 2 components - neutral Lennard-Jones fluid}
+Two component neutral Lennard-Jones system with same total density as
+case all of the above cases.  Compare results to case 14 above.
+
+\subsubsection{Case 1Dmix3: 2 components - Poisson-Boltzmann fluid}
+Two component Poisson-Boltzmann fluid with surface charge density of 0.3, and
+total ion density of 0.1 in a 1-1 electrolyte.   Note that the free energy computation
+for this system is not correct at this point.
+
+\subsubsection{Case 1Dmix4: 2 components - Primitive Model fluid}
+Two component 1-1 electrolyte of total density 0.1.  Finite sized particles of equal size.
+Two confining surface each with a surface charge density of 0.3.   
+Note that the free energy computation for this system is not correct at this point.
+
+\subsubsection{Case 1Dmix5: 2 components - Primitive Model fluid - with c(r) corrections}
+Same as case 1Dmix4, but with corrections to the direct correlation function.
+
+\subsubsection{Case 1Dmix6: 3 components - {\it Civilized} Model fluid}
+Same as case 1Dmix4, but also treats the solvent as a finite sized particle.
+The bulk solvent density is set to 0.65.
+
+\subsubsection{Case 1Dmix7: 3 components - LJ electrolyte}
+Same as 1Dmix6, but with LJ terms also turned on.  The external field has the coulomb
+contribution and a 9-3 LJ interaction.  The wall-fluid interaction energy is 3.  All
+cutoffs are set to 3$\sigma$.
+
+\subsubsection{Case 1Dmix8: 3 components - LJ electrolyte \# 2}
+Same as 1Dmix7, but with a coarse mesh.
+
+\subsubsection{Case 1Dmix9: 3 components - LJ electrolyte \# 3}
+Same as 1Dmix8, but with a smaller domain and a reflective boundary
+on the right side.
+
+
+\begin{table}[h]
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+Case & niter & Ex. Ads[0]  & Ex. Ads[1] & Ex.Ads[2] & Surf. Free Energy & Force \\
+\hline
+1Dmix1 & 5 & -0.058018 & -0.058018 & N/A & 1.198788  & 4.956897154 \\
+1Dmix2 & 11 & -0.067056 & -0.067056 & N/A & -3.578393  & 1.635907510 \\
+1Dmix3 & 8 & -0.107513 & 0.492487 & N/A & N/A & N/A \\
+1Dmix4 & 8 & -0.185832 & 0.414168 & N/A & N/A & N/A \\
+1Dmix5 & 8 & -0.160379 & 0.439621 & N/A & N/A & N/A \\
+1Dmix6 & 8 & -0.149902 & 0.450098 & -0.502953 & N/A & N/A \\
+1Dmix7 & 13 & -0.165082 & 0.434918 & -0.607667 & N/A & N/A \\
+1Dmix8 & 8 & -0.164617 & 0.435383 & -0.674387   & N/A & N/A \\
+1Dmix9 & 7 & -0.160178 & 0.439822 & -0.666253   & N/A & N/A \\
+\hline
+\end{tabular}
+\label{tab:table1}
+\caption{Principle output for 1-dimensional mixture cases
+in the test suite.}
+\end{table}
+
+\section{1D Polymer Fluids at Equilibrium}
+
+\subsection{Case 1Dpoly1: 8-2-8 repulsive polymer at a hard wall}
+CMS polymers. Total polymer density in the bulk is 0.711.  This case does not require a restart from a file.
+For polymer cases always check the stoichiometry.  For the 8-2-8 case, the adsorption of the tail beads should be 16/18 of the total and the adsorption of the head beads should be 2/18 of the total.
+
+\subsection{Case 1Dpoly2: 8-2-8 attractive polymer at an attractive wall}
+CMS polymers. In this case, the familiar 9-3 LJ potential is used in the dft\_potentials.c file.
+
+\subsection{Case 1Dpoly3:  8-2-8 polymer in a single site solvent}
+CMS polymers. This system forms a model lipid bilayer.  Use the provided restart file for this case.
+
+\subsection{Case 1Dpoly4: Charged 8-2-8 polymer in a single site solvent}
+CMS polymers. The tail (8) segments of the polymer carry a charge of -0.0125 while the
+head (2) segments of the polymer carry a charge of 0.1.  The profile from
+case 1Dpoly3 is used as the initial guess with the electrostatic field set to 1 everywhere in the 
+domain.  This case demonstrates charged polymers and tests the Restart=3 option
+where the densities, fields, and propagator equations are taken from the files and
+PDE quantites (electrostatic field, chemical potential fields) are set to something
+simple.
+
+\subsection{Case 1Dpoly5: 3-bead Wertheim-Tripathi-Chapman polymer}
+This case can be compared to the Chapman iSAFT results in the directory $Ex\_compare\_other$.  The discrepancies are due to different treatments of the hard sphere interactions.  Note that the adsorption results demonstrate that these functionals do not conserve stoichiometry correctly in their current form. 
+
+\subsection{Case 1Dpoly6: 5-bead Wertheim-Tripathi-Chapman polymer}
+This case can be compared to the Chapman iSAFT results in the directory $Ex\_compare\_other$.  The discrepancies are due to different treatments of the hard sphere interactions.  Note that the adsorption results demonstrate that these functionals do not conserve stoichiometry correctly in their current form.  Also note that the reported adsorption units are for segments 0, 1, and 2. To get the component adsorptions to compare with case 1Dpoly7 remember that there are 2 beads of type 0 and 2 beads of type 1 on the chain.
+
+\subsection{Case 1Dpoly7: 5-bead Wertheim-Tripathi-Chapman polymer}
+This case is identical to 1Dpoly6 with the exception that beads of the same type are treated as one species in the calculation.  This demonstrates that converting between components and segments in the code is all correct.  
+
+\subsection{Case 1Dpoly8: 5-bead Wertheim-Tripathi-Chapman polymer with charges}
+This case is identical to 1Dpoly6 except very small charges are added to the sites in order to enforce stoichimetry through charge neutrality.  Specifically, the two larger end beads have a charge of +0.000003 while the three smaller central beads have a charge of -0.000002.  
+
+
+\begin{table}[h]\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Case & niter & Ads[0]  & Ads[1] & Ads[2] & Surf. Free Energy  \\
+\hline
+1Dpoly1 & 9 & 19.611163 & 2.362834 & N/A & -5.536430   \\
+1Dpoly2 & 10 & 19.335234 & 2.416904 & N/A & -4.355118   \\
+1Dpoly3 & 1 & 3.525591 & 0.440699 & 27.666943 & -26.314286   \\
+1Dpoly4 & 4 & 3.489204 & 0.436150 & 27.700606 & -26.254234 \\
+1Dpoly5 & 13 & 0.457427 & 0.579423 & 0.457427 & -1.198080 \\
+1Dpoly6 & 8 & 0.591319 & 0.575603 & 0.571352 &  0.401681\\
+1Dpoly7 & 8 & 1.181661 & 1.727377 &  & 0.411746  \\
+1Dpoly8 & 9 & 0.587382 & 0.587105 & 0.587942 & 0.402915 \\
+\hline
+\end{tabular}
+\label{tab:table1}
+\caption{Principle output for 1-dimensional polymer cases
+in the test suite.}
+\end{table}
+
+\section{2D/3D Atomic Fluids Tests}
+\subsection{Case 2D3Datomic1: LJ Electrolyte in 2D - y reflections}
+This case is identical to 1Dmix8 except it is solved in a 2D domain with reflective boundary conditions in y.
+
+\subsection{Case 2D3Datomic2: LJ Electrolyte in 2D - x reflections}
+This case is identical to 2D3Datomic1 except the surface normals are rotated $90^o$, and the reflective boundary conditions are in the x-direction.
+
+\subsection{Case 2D3Datomic3: LJ Electrolyte in 2D - y periodic}
+This case is identical to 2D3Datomic1, but has periodic boundary conditions in y.
+
+\subsection{Case 2D3Datomic4: LJ Electrolyte in 2D - x periodic}
+This case is identical to 2D3Datomic2, but has periodic boundary conditions in x.
+
+\subsection{Case 2D3Datomic5: LJ Electrolyte in 2D - x continuation}
+This case is identical to 2D3Datomic1, but has periodic boundary conditions in x.
+
+\subsection{Case 2D3Datomic6: LJ Electrolyte in 2D - y continuation}
+This case is identical to 2D3Datomic2, but has periodic boundary conditions in y.
+
+\subsection{Case 2D3Datomic7: LJ Electrolyte in 3D - y and z reflections}
+This case is identical to 1Dmix9 except (1) it is solved in a 3D domain with reflective boundary conditions in both y and z, and (2) the size of the domain in x is halved with a reflective
+boundary on the right side.
+
+\subsection{Case 2D3Datomic8: LJ Electrolyte in 3D - x and z reflections}
+This case is identical to 2D3Datomic7 except it is solved in a 3D domain 
+with reflective boundary conditions in both x and z.
+
+\subsection{Case 2D3Datomic9: LJ Electrolyte in 3D - x and y reflections}
+This case is identical to 2D3Datomic7 except it is solved in a 3D domain with reflective boundary conditions in both x and y.
+
+\subsection{Case 2D3Datomic10: LJ Electrolyte in 3D - y and z periodic}
+This case is identical to 2D3Datomic7 except there are now periodic boundaries 
+in y and z.
+
+\subsection{Case 2D3Datomic11: LJ Electrolyte in 3D - y and z continue}
+This case is identical to 2D3Datomic7 except there are now 
+reflective boundaries in y and z.
+
+\subsection{Case 2D3Datomic12: LJ Electrolyte in 3D - y continue and z periodic}
+This case is identical to 2D3Datomic7 except there are continuation boundaries in 
+y and periodic boundaries z.
+
+
+\begin{table}[h]\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Case & niter & Ex\_Ads[0]  & Ex\_Ads[1] & Ex\_Ads[2] & Surf. Free Energy  \\
+\hline
+2D3Datomic1 & 9 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic2 & 9 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic3 & 11 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic4 & 11 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic5 & 10 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic6 & 10 & -0.164613 & 0.435387 & -0.674180  & N/A   \\
+2D3Datomic7 & 10 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+2D3Datomic8 & 10 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+2D3Datomic9 & 10 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+2D3Datomic10 & 11 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+2D3Datomic11 & 10 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+2D3Datomic12 & 10 & -0.160170 & -0.439830  & -0.666005  & N/A   \\
+\hline
+\end{tabular}
+\label{tab:table1}
+\caption{Principle output for 2 and 3-dimensional problems to test
+various boundary conditions.}
+\end{table}
+
+\section{Continuation Tests}
+\subsection{Case 1Dcont1:} 0th order continuation varying all densities simultaneously.
+1 component Lennard-Jones fluid.  Set to compute 30 steps, actually 
+generates 22 solutions.  Data for the first, tenth and last are shown below.
+
+\subsection{Case 1Dcont2:} Arc-length continuation, but otherwise identical to 
+the 1Dcont1 case.  Again set up to compute 30 steps.  Actually computes 29 
+solutions.  Data for the first, tenth, and last are shown below.
+
+\subsection{Case 1Dcont3:} Tests spinodal tracking algorithms.  Finds the spinodal point in the temperature-density plane.  Set up to compute 14 steps.
+Actually computes 12 solutions.  Data for the first, fifth, and last are shown below.  Use provided restart files for this case.
+
+\subsection{Case 1Dcont4:} Tests binodal tracking algorithms.  Tracks a binodal in the
+temperature-density plane.  Set up to compute 10 steps.  Actually computes
+11 solutions.  Data for the first and last are shown in the table.  Use provided restart files for this case.
+
+\begin{table}[h]\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+Case & niter & $kT/\epsilon_{ff}$ &$\rho_b$ & Ex\_Ads[0]  & force & Surf. Free Energy  \\
+\hline
+1Dcont1 (1) & 9 & 0.769230769 &0.00000100 & 0.000415 & 0.000001489  & -0.000422   \\
+1Dcont1 (10) & 4 &0.769230769 &0.00124611 & 1.314452 & 0.001821120  & -1.504508   \\
+1Dcont1 (22) & 4 &0.769230769 &0.00506460 & 2.915346 & -0.106074043  & -3.943196  \\ \hline
+1Dcont2 (1) & 9 &0.769230769 &0.00000100 & 0.000415 & 0.000001489  & -0.000422   \\
+1Dcont2 (10) & 3 &0.769230769 &0.00044223 & 0.848369  & 0.000653671  & -0.344495   \\
+1Dcont2 (29) & 3 &0.769230769 &0.00677950 & 4.681015 & -0.319105662  & -0.5916833  \\
+ \hline
+1Dcont3 (1) & 9 &0.769230769& 0.00506755 & 2.933112 & -0.115707404  & -3.944801   \\
+1Dcont3 (5) & 3 &0.8892308 & 0.01242808 & 2.638086 & -0.091864069  & -3.278197   \\
+1Dcont3 (12) & 4 &1.0729808 & 0.03475432 & 2.456827 & -0.086154772  & -2.753229 \\ \hline
+1Dcont4 (1A) & 9 &0.769230769& 0.00345787 & 2.021229 & 0.003030797  & -3.036407   \\
+1Dcont4 (1B) & 9 &0.769230769& 0.00345787 & 4.391266 & -0.94904113 &  -3.036407   \\
+1Dcont4 (11A) & 9 &1.0692308& 0.03405399 & 2.373717 & -0.065367901  & -2.756242   \\
+1Dcont4 (11B) & 9 &1.0692308& 0.03405399 & 2.640730 & -0.131511943  & -2.756242   \\
+\hline
+\end{tabular}
+\label{tab:table_cont}
+\caption{Principle output for test cases centered on continuation algorithms.}
+\end{table}
+
+\section{Test dates}
+
+{\bf June 22, 2004}......all test problems working.
+ 
+ One bug found in implementation of the interpolated direct correlation functions for the case of only one correlation function as found in the test suite.
+
+\section{DEVELOPERS GUIDE}
+
+In this section we provide some guidance to a new developer.  Specifically we address the necessary steps for the implemetation of new functionals.
+
+\subsection{modifying input routines}
+
+\subsection{modifying preprocessing routines}
+
+\subsubsection{new thermodynamics}
+\subsubsection{new stencils}
+\subsubsection{new surfaces}
+
+\subsection{implementing nonlinear equations}
+
+\subsection{implementing new block matrix structures}
+
+
+\subsection{modifying postprocessing routines}
+When a new functional is implemented in Tramonto, it is likely that the energy 
+functional used to compute surface free energies will need to be modified.  The postprocessing of the field variables is controlled in $dft\_out\_main.c$ where various general variables needed for computing spatial integrals are computed and where the various functions are called.  One of the routines called is the free energy constructor routine.
+
+The routine that controls the specific construction of the various contributions to the free energy is $calc\_free\_energy$ and is found in $dft\_out\_energy.c$.  This file contains qualifying $if$ statements that build the appropriate free energy modules.  It calls the general utility functions $integrateInSpace$ and $integrateInSpace_SumInComp$ for each piece of the functional.  When a new functional is added, at least one new section should be added to $dft\_out\_energy.c$.
+
+The specific part of the functional to be built is passed to the integrate utilities via function pointers.  These functions all contain the integrands needed for free energy calculations.  The necessary integrands are found in physics specific energy routines (for example, $dft\_energy\_att.c$).  When a new functional is added to Tramonto, additional integrands should be added to these files if the new functional is similar in nature to existing integrands (e.g. a new kind of attractive functional could be added to $dft\_energy\_att.c$).  Or, if a completely new kind of functional has been developed, a new file should be added to the package.
+
+Note that depending on the type of extension, the new functional may be a perturbation to functionals already existing in the code.  Or, like the Chandler-McCoy-Singer (CMS) functionals, the new functionals may be completely disconnected from what has gone before.  In either case, be sure that the qualifying $if$ statements in $dft\_out\_energy.c$ are modified to be inclusive or exclusive as necessary.
+
+\end{document}
+
+
+
+\subsubsection{2D Equilibrium Problem - Hard spheres}
+This problem considers a one-component hard sphere
+fluid confined by two uniform hard walls.  The solution domain
+is two dimensional although the solution is uniform in y.
+The boundary conditions in the y-direction are reflective.
+Note that many comments in the input file have been removed
+to reduce the space required for printing.
+
+\noindent=====================================================
+
+{\bf Density Profile}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/2dplot.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density in units of $\rho \sigma^3$ as a function
+          of position in a slit-channel.  Other
+          output are: adsorption, $\Gamma \sigma /A=2.3913$,
+          free energy, $\Omega^s \sigma^2/AkT=-0.2158$, and
+          solvation force, $f^s \sigma^3/AkT=5.1567$.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf8}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent =============================
+
+{\bf dft\_input.dat}
+
+\tiny
+
+\input{dft_in_ex/in28}
+
+\noindent=============================
+\normalsize
+\onecolumn
+
+\subsubsection{2D Equilibrium Problem - Lennard-Jones}
+This problem considers a one-component 12-6 Lennard-Jones
+fluid confined by a tapered slit pore.
+All boundary conditions are reflective.  We show both the
+external field and the resultsing density profile.
+
+\noindent=====================================================
+
+{\bf External Field and Density Profiles}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{0}{\resizebox{4.0in}{!}{\includegraphics{ex_epsi/2dLJvext.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The external field, $V^{ext}/kT$ as a function
+          of position in a tapered-channel.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\vspace{-2.0in}
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{0}{\resizebox{4.0in}{!}{\includegraphics{ex_epsi/2dLJrho.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density in units of $\rho \sigma^3$ as a function
+          of position in a tapered-channel.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf15}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent =============================
+
+{\bf dft\_input.dat}
+
+\tiny
+
+\input{dft_in_ex/in37}
+
+\noindent=============================
+\normalsize
+\onecolumn
+
+\subsubsection{1D Equilibrium Problem - Charged surfaces /
+Electrolyte Fluid}
+This problem shows a three-component 1:1 electrolyte
+fluid confined in a charged slit where the surfaces have uniform
+surface charge.
+The density profiles are followed by the input files used
+to generate the results.
+
+\noindent=====================================================
+
+{\bf Density Profiles}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/out3cm1.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density of co-ions in units of $\rho \sigma^3$ as a function
+          of distance between two charged hard walls.  The
+          adsorption of co-ions is, $\Gamma \sigma /A=-0.12224$.
+          The surface
+          free energy is , $\Omega^s \sigma^2/AkT=3.0246$, and
+          solvation force, $f^s \sigma^3/AkT=4.1134$.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/out3cm2.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+                The density of counter-ions in units of $\rho \sigma^3$ as a function
+                of distance between two charged hard walls.  The
+                adsorption of counter-ions is, $\Gamma \sigma /A=0.4778$.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/out3cm3.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+                The density of a neutral solvent in units of $\rho \sigma^3$
+                as a function
+                of distance between two charged hard walls.  The
+                adsorption of the solvent is, $\Gamma \sigma /A=-0.5473$.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf6}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent ==================================
+
+{\bf dft\_input.dat}
+
+\tiny
+\input{dft_in_ex/in26}
+
+\noindent====================================
+\normalsize
+\onecolumn
+
+\subsubsection{2D Equilibrium Problem - Coulomb system}
+This problem considers a 1:1 electrolyte
+fluid confined by a finite length tapered slit pore.  Only
+the center section pore is charged, and the dielectric
+constant in the surface is taken to be 1/10th the value
+of the dielectric constant in the fluid.
+The boundary conditions in the y-direction are reflective.
+
+\noindent=====================================================
+
+{\bf Density Profile}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/2dcounter.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density of counterions in units of $\rho \sigma^3$ as a function
+          of position in a finite length tapered pore.
+          }
+          \label{fig:2dcounter}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/2dcoion.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density of coions in units of $\rho \sigma^3$ as a function
+          of position in a finite length tapered pore.
+          }
+          \label{fig:2dcoions}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/2dpsi.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The electrostatic potential, $psi e/kT$ as a function
+          of position in a finite length tapered pore.
+          }
+          \label{fig:2dcoions}
+      }\end{minipage}
+\end{figure}
+\noindent =====================================================
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf14}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent =============================
+
+{\bf dft\_input.dat}
+
+\tiny
+
+\input{dft_in_ex/in36}
+
+\noindent=============================
+\normalsize
+\onecolumn
+
+\subsection{polymer DFT}
+
+\subsubsection{1D hard polymer}
+
+\subsubsection{1D confined diblock co-polymer}
+This problem shows a diblock copolymer confined in
+a slit pore where one of the polymer segments is attractive
+to the surfaces.  The density profile shows both molecular
+structure near the surfaces and the beginnings of mesoscopic
+structure (lamellae) in the center of the box.
+The density profile shows both polymer segments, and it is
+followed by the input files used to generate the results.
+
+\noindent=====================================================
+
+{\bf Density Profile}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/poly1.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density of two segments of a diblock co-polymer
+          in units of $\rho \sigma^3$ as a function
+          of location between two confining walls.
+          }
+          \label{fig:fig-pt}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf12}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent ============================
+
+{\bf dft\_input.dat}
+
+\tiny
+
+\input{dft_in_ex/in33}
+
+\noindent============================
+\normalsize
+\onecolumn
+
+\subsubsection{2D case}
+
+\subsection{transport-DFT}
+\subsubsection{1D Neutral Transport-DFT}
+This problem shows color diffusion of a two-component hard sphere fluid
+through a simple semi-permeable membrane.
+The density profiles are followed by the input files used
+to generate the results.
+
+\noindent=====================================================
+
+{\bf Density Profiles}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/gradrho.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The number density of two hard sphere species in
+          units of $\rho \sigma^3$ as a function
+          of distance between two control volumes where a semi-permeable
+          membrane is found at $x=0.0$.
+          }
+          \label{fig:gradrho}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/gradmu.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+                The chemical potential in units of $kT$ as a function
+                of distance between two control volumes.
+          }
+          \label{fig:gradmu}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+
+{\bf dft\_surfaces.dat}
+
+\input{dft_surf_ex/surf13}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent ==================================
+
+{\bf dft\_input.dat}
+
+\tiny
+\input{dft_in_ex/in34}
+
+\noindent====================================
+\normalsize
+\onecolumn
+\subsubsection{1D Charged Transport-DFT}
+This problem shows transport of a two-component 1:1 electrolyte
+between two control volumes when there is a fixed charge of
++0.5 between them.
+The resulting profiles are followed by the input file used
+to generate the results.  There is no surfaces file as there
+are no surfaces in this example problem.  In this case, an
+external field arises from the fixed charge.
+
+\noindent=====================================================
+
+{\bf Density Profiles}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/gradrho_c.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+          The density of co-ions (depleted in center of box)
+          and counter-ions (in excess in center of box)
+          in units of $\rho \sigma^3$ as a function
+          of distance between two well mixed control volumes of different concentration.
+          }
+          \label{fig:gradrho_c}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/gradphi_c.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+                The electrostatic potential, $\phi e/kT$, as a function
+          of distance between two well mixed control volumes of different concentration.
+          Note that a constant nonzero potential drop between control volumes is being
+          applied.
+          }
+          \label{fig:gradphi_c}
+      }\end{minipage}
+\end{figure}
+
+\begin{figure}[h] %%        h=here t=top b=bottom p=page
+   \begin{minipage}{6.5in}{
+      \hbox{
+      \rotatebox{-90}{\resizebox{2.0in}{!}{\includegraphics{ex_epsi/gradmu_c.epsi}}}      }
+   }
+   \end{minipage}
+         \hspace{0.1in}
+      \begin{minipage}{2.2in}{
+          \protect\caption{
+                The chemical potential profiles, $\mu/kT$ corresponding
+                to the density profiles above.
+          }
+          \label{fig:gradmu_c}
+      }\end{minipage}
+\end{figure}
+
+\noindent =====================================================
+
+\twocolumn
+\noindent ==================================
+
+{\bf dft\_input.dat}
+
+\tiny
+\input{dft_in_ex/in35}
+
+\noindent====================================
+\normalsize
+\onecolumn
+\subsubsection{2D Transport-DFT}
+
+
+\subsection{Continuation}
+\subsubsection{Arc-Length Continuation}
+\subsubsection{Phase Transition Tracking}
+
+\subsection{Example problems for PRISM}
+
+\section{Developers Guide}
+
+\subsection{Polymer DFT User's Guide}
+
+Sten[4] must be != 0 for polymer DFT. Use 1 for HNC field, 2 for MS
+
+************** POLYMER Parameters **********************************************
+@ 1                     Number of (co)polymer components
+@ 2 1                   Number of blocks in each copolymer
+@ 16 8 1               Number of segments in each block (starting w/comp1,2...)
+@ 0 1 2                 Segment types in each block (start w/0, must not skip)
+@ 1.0                   c(r) radius (units of sigma)
+@ 0.9814                Aspect ratio ( gauss bl/sigma)
+@ 0.8  -4               Bupdate\_fact  \#iter to slow Boltz updates
+@  crf16.8\_0.9             c(r) filename
+
+  In the entry for Ncomp below, treat each segment type as a distinct component
+  => 1 for homopolymer, 2 for diblock or ABA triblock, 3 for ABC triblock
+     3 for diblock with solvent, etc.
+  Rho\_b[0] should be the density of the first copolymer, Rho\_b[1] the second
+   copolymer or the solvent. Based on the input block lengths, Rho\_b[0] will
+   then be converted to the density of A segments, Rho\_b[1] for B's, etc.
+   Therefore, if you are modeling one or more copolymers, there will be fewer
+   Rho\_b input values than Ncomp. An ABC triblock in solvent will
+   assign Rho\_b[0-2] based on the first value, and Rho\_b[3] will be the second.
+
+************** FLUID PARTICLE PARAMETERS ***************************************
+@  2                      Ncomp
+
+\subsection{Programmer's Notes}
+
+Polymer DFT Variables and Dimensions:
+\begin{table}
+\begin{tabular}{cc}
+{\bf Npol\_comp} & Number of polymer components (a diblock counts as 1) \\
+{\bf Nblock[NCOMP\_MAX]} & Number of blocks in each copolymer \\
+{\bf Nmer[NCOMP\_MAX]} & Number of monomers in each copolymer \\
+{\bf Nmer\_t[NCOMP\_MAX][NBLOCK\_MAX]} & \# of monomers of a certain type \\
+                                    & in a particular copolymer \\
+{\bf Ntype\_mer} & Number of monomer types. = Ncomp - \# of solvent types \\
+{\bf Type\_mer[NCOMP\_MAX][NMER\_MAX]} & Component type number of each monomer \\
+{\bf Polymer\_sym[NCOMP\_MAX]} & =1 if symmetric   =0 if asymmetric \\
+\end{tabular}
+\end{table}
+
+
+Nlists\_HW:
+  = 1 for PB or IG. When the particles do not have a finite size
+        there is no exlusion region at the surface. Therefore there
+    can be only one list identifying which elements are wall or
+    fluid.
+
+  = 2 for single or multicomponent systems where are particles have the
+    same sigma. List=0 will label all elements in the exclusion region
+        as wall. List=Nlist\_HW-1=1 will label elements in the gap as fluid.
+
+  = Ncomp+1 for multicomponent systems with diff sigmas. There will be an
+    individual list for each comp and then Nlist\_HW-1 for the actual wall.
+
+
+Wall\_elems\_TF[list][element \# within box]:
+    T if an element within wall
+
+
+node\_to\_elem(node \#,corner/element \#, flag)
+    in 1-D a node is part of 2 elements
+    in 2-D a node is part of 4 elements   Nnodes\_per\_el\_V = 4
+    in 3-D a node is part of 8 elements
+        the combination of node \& corner \# identifies the element in global (not
+        box) values
+        if the node is on the boundary of the whole system, some of the corners
+        are not elements.
+        = -2 if bulk     = -1 if inside an infinite wall
+        at a reflective boundary, this will give the el \# of the reflection
+
+      corner/el \#             |               |
+        = loc\_node\_el =    0  \*  1        0   |    1
+                              |               |
+                                           ---\*---
+                                              |
+                                          2   |    3
+                                              |
+
+Nodes\_2\_boundary[list][node within box]
+        -1 for nodes completely surrounded by either wall or fluid
+        otherwise = wall \#
+        a value != -1 means that it touches a wall and Nelems\_S
+         will be defined. If Nelems\_S != 0, then the node is part of a
+    surface element
+
+
+%#Vol\_el = Esize**Ndim
+%Nnodes\_per\_el\_V = 2**Ndim
+%Nnodes\_per\_el\_S = 2**(Ndim-1)
+%
+%Time ~ (Ncomp)**2
+%     ~ Nodes**4   ??
+
+%Coarsening   Nzone = 2
+%             Rmax\_zone = 4.0
+%             Coars. res = 0?  use 1
+%                    jac = 1
+%             M_fill_flag  1 or 0   making this 1 means using an approximate
+%                                   Jacobian which may require twice as many
+%                                   iterations but may speed up each iter by
+%                                   a factor of 5 or so
+%                 . . .but, setting this to 1 seems to require a ton of memory.
+%                      Most cases seem to work better using 0
+
+%Use ilu preconditioner for low density systems (electrolytes with
+%   continuum solvent). This will likely slow down solutions for high
+%   density systems.
+
+%B2L_unknowns is equivalent to Aztec.update_index. It should really be
+%   call something like B2Az_unknowns
+
+%Xtest_reflect flag: determines whether nodes on a reflective boundary
+%   touching a surface should be counted as additional surface area.
+%   For 2d cylinders case:              __________________ Reflective
+                                       :         |XXXX|  |
+%    the upper boundary should have     :          \XX/   |
+%    this flag set to F since the   Bulk:           --    | Reflective
+%    reflection is the same surface     :                 |
+%    and there is no surface area along :                 |
+%    the boundary. The boundary on the  ..................|
+%    right is set to T since there can       Bulk
+%    be a non-zero density of solvent
+%    on the boundary if the cylinders
+%    are just touching.
+
+\begin{thebibliography} {99}
+
+\bibitem{frenkel1} D. Frenkel and B. Smit, {\it Understanding
+molecular simulation: from algorithms to applications},
+Academic Press, San Diego, 1996.
+\bibitem{duan1}  Y. Duan and P.A. Kollman, Science,
+{\bf 282}, 749 (1998).
+\bibitem{smit1} S. Karaborni, K. Esselink , P.A.J. Hilbers, and B. Smit,
+J. Phys. Cond. Matt., {\bf 6} A351 (1994).
+\bibitem{karaborni1} S. Karaborni and B. Smit,
+Current Opinion in Colloid and Interface Sci., {\bf 1}, 411 (1996).
+\bibitem{buhot1} A. Buhot and W. Krauth, Phys. Rev. Lett.,
+{\bf 80}, 3787 (1998).
+\bibitem{dill1} K.A. Dill, Biochemistry, {\bf 24}, 1501 (1985).
+\bibitem{dawson1} D.E. Jennings, Y.A. Kuznetsov, E.G. Timoshenko,
+and K.A. Dawson, J. Chem. Phys., {\bf 108}, 1702 (1998).
+\bibitem{frink6} J. Chem. Phys., {\bf 100}, 9106 (1994).
+
+% section 2.1
+\bibitem{evans1}
+for a review, see R.Evans in
+{\it Fundamentals of Inhomogeneous Fluids}, D. Henderson, ed.
+Marcel Dekker, New York (1992).
+\bibitem{tarazona1} P. Tarazona, Phys. Rev. A, {\bf 31}, 2672 (1985);
+Erratum, Phys. Rev. A., {\bf 32}, 3148 (1985).
+\bibitem{rosenfeld1} Y. Rosenfeld, Phys. Rev. Lett., {\bf 63}, 980 (1989).
+\bibitem{rosenfeld2} Y. Rosenfeld, D. Levesque, and J.-J. Weis,
+J. Chem. Phys., {\bf 92}, 6818 (1990).
+\bibitem{mccoy1} D. Chandler, J.D. McCoy, S.J. Singer, J. Chem.
+  Phys. 85, 5971 (1986); 85, 5977 (1986).
+\bibitem{hooper} J.B. Hooper, J.D. McCoy, J.G. Curro, submitted
+  to J. Chem. Phys.
+\bibitem{dft1} S. Sen, J.M. Cohen, J.D. McCoy, J. Chem. Phys. 101, 3205
+  (1994); S. Sen, J.D. McCoy, S.K. Nath, J.P. Donley, J.G. Curro, J. Chem.
+  Phys. 102, 3431 (1994).
+\bibitem{nath} S.K. Nath, J.D. McCoy, J.G. Curro, R.S. Saunders, J. Chem.
+  Phys. 106, 1950 (1997); J. Polym. Sci. B: Polym. Phys. 33, 2307 (1995).
+\bibitem{dft2} A. Yethiraj, C.E. Woodward, J. Chem. Phys. 102, 5499 (1995).
+\bibitem{yeth} A. Yethiraj, J. Chem. Phys. 109, 3269 (1998).
+\bibitem{lastdft} S.K. Nath, P.F. Nealey, J.J. de Pablo, J. Chem. Phys. 110,
+  7483 (1999).
+\bibitem{weeks1} J.D. Weeks, D. Chandler, and H.C. Anderson, J. Chem. Phys.,
+{\bf 54}, 5237, (1971).
+\bibitem{teran1} L. Mier-y-Teran, S.H. Suh, H.S. White, and
+H.T. Davis, J. Chem. Phys., {\bf 92}, 5087 (1990); Z. Tang, L. Mier-y-Teran,
+H.T. Davis, L.E. Scriven, and H.S. White, Mol. Phys., {\bf 71}, 369 (199).
+\bibitem{groh1} B. Groh, R. Evans, and S. Dietrich, Phys. Rev. E, {\bf 57},
+\bibitem{waisman1} E. Waisman and J.L. Lebowitz, J. Chem. Phys.,
+{\bf 56}, 3086 (1972); J. Chem. Phys., {bf 56}, 3093 (1972).
+\bibitem{henderson1} for a review see J.R. Henderson in
+{\it Fundamentals of Inhomogeneous Fluids}, D. Henderson, ed.
+Marcel Dekker, New York (1992).
+
+
+
+\bibitem{mccoy1} D. Chandler, J.D. McCoy, S.J. Singer, J. Chem.
+  Phys. 85, 5971 (1986); 85, 5977 (1986).
+\bibitem{hooper} J.B. Hooper, J.D. McCoy, J.G. Curro, submitted
+  to J. Chem. Phys.
+\bibitem{dft1} S. Sen, J.M. Cohen, J.D. McCoy, J. Chem. Phys. 101, 3205
+  (1994); S. Sen, J.D. McCoy, S.K. Nath, J.P. Donley, J.G. Curro, J. Chem.
+  Phys. 102, 3431 (1994).
+\bibitem{nath} S.K. Nath, J.D. McCoy, J.G. Curro, R.S. Saunders, J. Chem.
+  Phys. 106, 1950 (1997); J. Polym. Sci. B: Polym. Phys. 33, 2307 (1995).
+\bibitem{dft2} A. Yethiraj, C.E. Woodward, J. Chem. Phys. 102, 5499 (1995).
+\bibitem{yeth} A. Yethiraj, J. Chem. Phys. 109, 3269 (1998).
+\bibitem{lastdft} S.K. Nath, P.F. Nealey, J.J. de Pablo, J. Chem. Phys. 110,
+  7483 (1999).
+
+
+\bibitem{scf1} E. Helfand, Z.R. Wasserman, Macromolecules 9, 879 (1976);
+ 11, 960 (1978); 13, 994 (1980).
+\bibitem{leibler} L. Leibler, Macromolecules 13, 1602 (1980).
+\bibitem{scf2} G.H. Fredrickson, E. Helfand, J. Chem. Phys. 87, 697 (1987).
+\bibitem{scf3} A.N. Semenov, Sov. Phys. JETP 61, 733 (1985).
+\bibitem{matsen} M.W. Matsen, M. Schick, Phys. Rev. Lett. 72, 2660 (1994);
+  Macromolecules 27, 6761 (1994).
+\bibitem{mat_bates} M.W. Matsen, F.S. Bates, Macromolecules 29, 1091 (1996).
+\bibitem{edwards} S.F. Edwards, Proc. Phys. Soc. London 85, 613 (1965).
+\bibitem{nath_scf} S.K. Nath, J.D. McCoy, J.P. Donley, J.G. Curro,
+  J. Chem. Phys. 103, 1635 (1995).
+\bibitem{donley} J.P. Donley, J.J. Rajasekaran, J.D. McCoy, J.G. Curro,
+  J. Chem. Phys. 103, 5061 (1995).
+
+% PRISM
+\bibitem{chandlerbook} D. Chandler, {\it{ The Liquid State of Matter}}
+  (E.W. Montroll, J.L. Lebowitz, ed., North-Holland Publishing
+  Company, 1982), page 275 and references therein.
+\bibitem{prismrev} For recent reviews see: K.S. Schweizer, J.G. Curro, Adv.
+  Polym. Sci. 116, 319 (1994), K.S. Schweizer, J.G. Curro, Adv. Chem. Phys.
+  98, 1 (1997).
+\bibitem{hansen} J.P. Hansen and I.R. McDonald, {\it {Theory of Simple
+  Liquids}} (Academic: London, 1986).
+\bibitem{molec_clos} K.S. Schweizer, A. Yethiraj, J. Chem. Phys. 98, 9053
+  (1993); J. Chem. Phys. 98, 9080 (1993).
+\bibitem{david_schw} E.F. David, K.S. Schweizer, J. Chem. Phys. 100, 7767
+  (1994); 100, 7784 (1994).
+\bibitem{hooper2} J.B. Hooper, M.T. Pileggi, J.D. McCoy, J.G. Curro,
+  J.D. Weinhold, submitted to J. Chem. Phys.
+\bibitem{carnahan} N.F. Carnahan, K.E. Starling, J. Chem. Phys. 51, 635 (1969).
+\bibitem{chang} J. Chang, S.I. Sandler, Chem. Eng. Sci. 49, 2777 (1994).
+\bibitem{depab_eos} F.A. Escobedo, J.J. de Pablo, J. Chem. Phys. 103, 1946
+  (1995).
+\bibitem{honnell_mix} K.G. Honnell, C.K. Hall, J. Chem. Phys. 95, 4481 (1991).
+
+\end{thebibliography}
+%%
+\end {document}

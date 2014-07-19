@@ -1,0 +1,9 @@
+Tramonto_add_test(
+  POLY24_CMS_GRAFT_1D
+  INPUT_FILES
+    README
+    cr_10_1
+    dft_input.dat
+    dft_surfaces.dat
+    lin_10_1
+)

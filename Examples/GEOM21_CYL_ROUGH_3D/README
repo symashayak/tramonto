@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 3D finite length rough cylindrical surfaces. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - two rough cylindrical surfaces with finite length. Vext(integrated).
+Reflected planes result in hexagonal arrangment of surfaces.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=13
+   - adsorption[0]=780.025
+   - adsorption[0]=780.025
+   - surf_ex_energy=527.322
+   .
+*/
+

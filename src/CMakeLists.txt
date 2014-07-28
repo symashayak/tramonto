@@ -143,7 +143,10 @@ set(common_h
 	dft_pairPot_r18YukawaSum.h
 	dft_pairPot_nvarYukawaSum.h
 	dft_pairPot_EXP.h
-		dft_pairPot_SW.h
+  dft_pairPot_BSpline.hpp
+  potentialfunction.hpp
+  potentialfunctioncbspl.hpp
+	dft_pairPot_SW.h
 	dft_switch_pairPot.h
 	dft_switch_vext1D.h
 	dft_switch_FMT.h
@@ -254,7 +257,7 @@ set(common_c
 	dft_fill_main.c
 	dft_fill_FMT.c
 	dft_fill_mf.c
-		dft_fill_SCF.c
+	dft_fill_SCF.c
 	dft_fill_wtc.c
 	dft_vext_coul.c
 	dft_uww.c
@@ -270,7 +273,7 @@ set(common_c
 	dft_pairPot_r18YukawaSum.c
 	dft_pairPot_nvarYukawaSum.c
 	dft_pairPot_EXP.c
-		dft_pairPot_SW.c
+	dft_pairPot_SW.c
 	dft_switch_pairPot.c
 	dft_switch_vext1D.c
 	dft_switch_FMT.c
@@ -298,6 +301,9 @@ set(common_cxx
 	dft_poly_lin_prob_mgr_wrapper.cpp
 	dft_hardsphere_lin_prob_mgr_wrapper.cpp
 	dft_parameterlist_wrapper.cpp
+	dft_pairPot_BSpline.cpp
+  potentialfunction.cpp
+  potentialfunctioncbspl.cpp
 	)
 set(noxloca_cxx
 	NOXLOCA_Solver.cpp
@@ -311,6 +317,12 @@ set(noxloca_headers
 	NOXLOCA_Tramonto_Vector.hpp
 	NOXLOCA_Tramonto_PTGroup.hpp
 	NOXLOCA_Tramonto_PTVector.hpp)
+
+find_package(Boost 1.39.0 REQUIRED COMPONENTS program_options filesystem )
+include_directories(${Boost_INCLUDE_DIRS})
+set (BOOST_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+set (BOOST_CFLAGS_PKG "-I${Boost_INCLUDE_DIRS}")
+string(REGEX REPLACE "^(.*)/lib([^/]*)\\.[^.]*$" "-L\\1 -l\\2" BOOST_LIBS_PKG ${BOOST_LIBRARIES})
 
 #Add Trilinos information to the include and link lines
 include_directories(${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )

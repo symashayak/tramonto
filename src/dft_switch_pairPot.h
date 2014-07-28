@@ -100,4 +100,9 @@ double uCOULOMB_CS(double r,double z1,double z2,double rcut);
 #define PAIR_COULOMB_CS       1
 double uLJ12_6_CS(double r,double sigma,double eps,double rcut);
 #define PAIR_LJ12_6_CS        0
+
+// \todo add B-spline stuff here
+#define PAIR_BSpline          10
+
+
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);

@@ -146,6 +146,8 @@ set(common_h
   dft_pairPot_BSpline.hpp
   potentialfunction.hpp
   potentialfunctioncbspl.hpp
+  potentialfunctionquad.hpp
+  eqtinteraction.hpp
 	dft_pairPot_SW.h
 	dft_switch_pairPot.h
 	dft_switch_vext1D.h
@@ -304,6 +306,8 @@ set(common_cxx
 	dft_pairPot_BSpline.cpp
   potentialfunction.cpp
   potentialfunctioncbspl.cpp
+  potentialfunctionquad.cpp
+  eqtinteraction.cpp
 	)
 set(noxloca_cxx
 	NOXLOCA_Solver.cpp

@@ -50,6 +50,7 @@ double uYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,dou
 double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
 double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);
 double uLJ12_6_DERIV1D(double r,double x,double sigma,double eps,double rcut);
+double uEQT_DERIV1D(double r,double x,int flag,int i,int j);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 void uSW_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uEXP_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
@@ -61,6 +62,7 @@ void uYUKAWA_CS_setparams(int context,int i,int j,double *param1,double *param2,
 void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uCOULOMB_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uLJ12_6_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
+void uEQT_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5,double *param6);
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,7 +80,7 @@ void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define SCREEN_NONE       -1 
+#define SCREEN_NONE       -1
 extern int Iwrite_screen;
 double uSW(double r,double sigma,double eps,double rcut);
 #define PAIR_SW		      5
@@ -102,7 +104,7 @@ double uLJ12_6_CS(double r,double sigma,double eps,double rcut);
 #define PAIR_LJ12_6_CS        0
 
 // \todo add B-spline stuff here
-#define PAIR_BSpline          10
-
+#define PAIR_EQT          10
+double uEQT(double r,int flag,int i,int j);
 
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);

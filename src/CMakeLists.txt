@@ -113,7 +113,7 @@ set(common_h
 	dft_guess_WTC.h
 	dft_guess_restart.h
 	dft_guess_CMS.h
-		dft_guess_SCF.h
+	dft_guess_SCF.h
 	dft_guess_WJDC.h
 	dft_guess_ELECPOT.h
 	dft_comm.h
@@ -127,7 +127,7 @@ set(common_h
 	dft_fill_main.h
 	dft_fill_FMT.h
 	dft_fill_mf.h
-		dft_fill_SCF.h
+	dft_fill_SCF.h
 	dft_fill_wtc.h
 	dft_vext_coul.h
 	dft_uww.h
@@ -143,11 +143,11 @@ set(common_h
 	dft_pairPot_r18YukawaSum.h
 	dft_pairPot_nvarYukawaSum.h
 	dft_pairPot_EXP.h
-  dft_pairPot_BSpline.hpp
   potentialfunction.hpp
   potentialfunctioncbspl.hpp
   potentialfunctionquad.hpp
   eqtinteraction.hpp
+  dft_pairPot_EQT.h
 	dft_pairPot_SW.h
 	dft_switch_pairPot.h
 	dft_switch_vext1D.h
@@ -245,7 +245,7 @@ set(common_c
 	dft_guess_WTC.c
 	dft_guess_restart.c
 	dft_guess_CMS.c
-		dft_guess_SCF.c
+	dft_guess_SCF.c
 	dft_guess_WJDC.c
 	dft_guess_ELECPOT.c
 	dft_comm.c
@@ -303,11 +303,11 @@ set(common_cxx
 	dft_poly_lin_prob_mgr_wrapper.cpp
 	dft_hardsphere_lin_prob_mgr_wrapper.cpp
 	dft_parameterlist_wrapper.cpp
-	dft_pairPot_BSpline.cpp
   potentialfunction.cpp
   potentialfunctioncbspl.cpp
   potentialfunctionquad.cpp
   eqtinteraction.cpp
+  dft_pairPot_EQT.cpp
 	)
 set(noxloca_cxx
 	NOXLOCA_Solver.cpp

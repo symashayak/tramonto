@@ -76,7 +76,8 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
       case PAIR_SW:
         u = uSW(r,param1,param2,param3);
         break;
-      case PAIR_BSpline:
+      case PAIR_EQT:
+        u = uEQT(r,(int)param1,(int)param2,(int)param3);
         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE)printf("problems with your selection of typePairPotin pairPot_switch: typePairPot=%d\n",typePairPot);
@@ -123,8 +124,8 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,
       case PAIR_SW:
         uSW_setparams(context,i,j,param1,param2,param3);
         break;
-      case PAIR_BSpline:
-        //        uBSpline_setparams(context,i,j,param1);
+      case PAIR_EQT:
+        uEQT_setparams(context,i,j,param1,param2,param3);
         break;
       default:
         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPotparams_switch typePairPot=%d\n",typePairPot);
@@ -171,6 +172,9 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         break;
       case PAIR_SW:
         uderiv = uSW_DERIV1D(r,x,param1,param2,param3);
+        break;
+      case PAIR_EQT:
+        uderiv = uEQT_DERIV1D(r,x,(int)param1,(int)param2,(int)param3);
         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_deriv_switch typePairPot=%d\n",typePairPot);

@@ -17,6 +17,7 @@ class EQTInteraction {
 
 public:
 
+  EQTInteraction() {}
   EQTInteraction(int id);
   ~EQTInteraction() {}
 

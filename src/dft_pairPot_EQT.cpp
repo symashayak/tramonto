@@ -5,6 +5,7 @@
 */
 
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/lexical_cast.hpp>
 #include "eqtinteraction.hpp"
 #include "dft_pairPot_EQT.h"
 
@@ -30,9 +31,9 @@ using namespace std;
 
 // };
 
-ub::matrix<EQTInteraction> u_ff(NCOMP_MAX,NCOMP_MAX);
-ub::matrix<EQTInteraction> u_wfu_wf(NCOMP_MAX,NWALL_MAX_TYPE);
-ub::matrix<EQTInteraction> u_ww(NWALL_MAX_TYPE,NWALL_MAX_TYPE);
+ub::matrix<EQTInteraction*> u_ff(NCOMP_MAX,NCOMP_MAX);
+ub::matrix<EQTInteraction*> u_wf(NCOMP_MAX,NWALL_MAX_TYPE);
+ub::matrix<EQTInteraction*> u_ww(NWALL_MAX_TYPE,NWALL_MAX_TYPE);
 
 //c_dft_pairPot_EQT pairPot_EQT;
 
@@ -43,19 +44,25 @@ void uEQT_setparams(int context,int i,int j,double *param1,
     *param1 = 0;
     *param2 = i;
     *param3 = j;
-    //uff(i,j).setparams();
+    u_ff(i,j) = new EQTInteraction("ff_"+
+                                   boost::lexical_cast<std::string>(i),
+                                   boost::lexical_cast<std::string>(j));
     break;
   case WALL_FLUID:
     *param1 = 1;
     *param2 = i;
     *param3 = j;
-    //uwf(i,j).setparams();
+    u_wf(i,j) = new EQTInteraction("wf_"+
+                                   boost::lexical_cast<std::string>(i),
+                                   boost::lexical_cast<std::string>(j));
     break;
   case WALL_WALL:
     *param1 = 2;
     *param2 = i;
     *param3 = j;
-    //uww(i,j).setparams();
+    u_ww(i,j) = new EQTInteraction("ww_"+
+                                   boost::lexical_cast<std::string>(i),
+                                   boost::lexical_cast<std::string>(j));
     break;
   default:
     if (Iwrite_screen != NONE) printf("problem with potential context uEQT_setparams\n");

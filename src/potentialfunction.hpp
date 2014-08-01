@@ -57,71 +57,22 @@ class PotentialFunction {
   // calculate function
   virtual double CalculateF (const double r) const = 0;
 
-  // calculate first derivative w.r.t. ith parameter
-  virtual double CalculateDF(const int i, const double r) const = 0;
-
-  // calculate second derivative w.r.t. ith parameter
-  virtual double CalculateD2F(const int i, const int j, const double r) const = 0;
-
   // return parameter
   ub::vector<double>& Params() { return _lam; }
 
   // return ith parameter
   double getParam(const int i) const { return _lam(i); }
 
-  // return ith parameter among those to be optimized
-  virtual double getOptParam(const int i) const {
-    return getParam(i);
-  }
-
   // return size of parameters
   int getParamSize() const { return _lam.size(); }
-
-  // return number of parameters to be optimized for continuum potential
-  // this is different than _nlam since some paramters are fixed by
-  // continuity conditions at rmin
-  virtual int ContOptParamSize() const { return _lam.size();}
 
   // return cut-off value
   double getCutOff() const { return _cut_off; }
 
   double getMinDist() const { return _min; }
 
-  // EQT specific functions
-
-  // calculate integrant r.f(r)
-  virtual double CalculateIntRF(const double r1, const double r2) const = 0;
-
-  /// \brief calculate integration r^2 * f(r) dr from r1 to r2
-  virtual double CalculateIntR2F(const double r1, const double r2) const = 0;
-
-  /// \brief caculates integration r*(df/dr) from r1 to r2
-  virtual double CalculateIntRdF(const double r1, const double r2) const = 0;
-
-  // calculate integrant r.df/dlamdai(r)
-  virtual double CalculateIntRdF(const int i, const double r1,
-                                 const double r2) const = 0;
-
-  /// \brief calculate r^2.df/dlamdai(r)
-  virtual double CalculateIntR2dF(const int i, const double r1,
-                                  const double r2) const = 0;
-
-  // calculate integrant r.d2f/dlamdai*dlamdaj(r)
-  virtual double CalculateIntRd2F(const int i, const int j,
-                                  const double r1, const double r2) const = 0;
-
-  /// \brief calculate r^2.d2f/dlamdai*dlamdaj(r)
-  virtual double CalculateIntR2d2F(const int i, const int j,
-                                   const double r1, const double r2) const = 0;
-
-  // makes this potential and u continuous at r
-  virtual void CutoffContinuous(const double uval) = 0;
-
   // first derivative w.r.t. r
   virtual double CalculateDF( const double r) const = 0;
-
-  // double derivative w.r.t. r
-  virtual double CalculateD2F( const double r) const = 0;
 
  protected:
 
@@ -135,15 +86,6 @@ class PotentialFunction {
 
   virtual void SetInterval(const double r1, const double r2,
                            double& r1_, double& r2_) const;
-
-  virtual double IntRF(const double r) const = 0;
-  virtual double IntR2F(const double r) const = 0;
-  virtual double IntRdF(const double r) const = 0;
-  virtual double IntRdF(const int i, const double r) const = 0;
-  virtual double IntR2dF(const int i, const double r) const = 0;
-  virtual double IntRd2F(const int i, const int j, const double r) const = 0;
-  virtual double IntR2d2F(const int i, const int j, const double r) const = 0;
-
 };
 
 #endif

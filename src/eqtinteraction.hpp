@@ -28,6 +28,7 @@ public:
   void setType2(const string &type2) { _type2 = type2; }
   double ComputeU(double r)const;
   double ComputeDU(double r)const;
+  double ComputeIntR2U(double r)const;
   void SavePotTab(const string& filename, const double step,
                   const double rmin, const double rcut) const;
 private:

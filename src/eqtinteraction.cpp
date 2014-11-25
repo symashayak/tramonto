@@ -39,3 +39,7 @@ double EQTInteraction::ComputeU(double r)const{
 double EQTInteraction::ComputeDU(double r)const{
   return (_uquad->CalculateDF(r) + _uspl->CalculateDF(r));
 }
+
+double EQTInteraction::ComputeIntR2U(double r)const{
+  return (_uquad->CalculateIntR2F(r) + _uspl->CalculateIntR2F(r));
+}

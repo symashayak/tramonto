@@ -82,7 +82,7 @@ void uLJ12_6_CS_setparams(int context, int i, int j, double *param1,double *para
 double uLJ12_6_DERIV1D(double r,double x,double sigma, double eps, double rcut)
 {
   double uderiv;
-  
+
   if (r <= rcut) {
      uderiv = (1.0/(sigma*sigma)) * (
             -12.*x*POW_DOUBLE_INT(sigma/r,14) + 6.*x*POW_DOUBLE_INT(sigma/r,8) );

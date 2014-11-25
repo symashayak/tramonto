@@ -19,6 +19,9 @@ public:
   double CalculateF (const double r) const;
   // first derivative w.r.t. r
   double CalculateDF(const double r) const;
+  /// \brief calculate integrant r^2 * f(r) dr
+  double CalculateIntR2F(const double r) const;
+
 protected:
 };
 

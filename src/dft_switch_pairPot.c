@@ -218,6 +218,9 @@ void pairPot_InnerCore_switch(int icomp, int jcomp,int typePairPot,
       case PAIR_SW:
          uSW_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
          break;
+      case PAIR_EQT:
+         uEQT_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
+         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_innerCore_switch typePairPot=%d\n",typePairPot);
          exit(-1);
@@ -239,31 +242,34 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
         u= uLJ12_6_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_COULOMB_CS:
-        u = uCOULOMB_ATT_CS(r,icomp,jcomp);  
+        u = uCOULOMB_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_COULOMB:
-        u = uCOULOMB_ATT_CnoS(r,icomp,jcomp);  
+        u = uCOULOMB_ATT_CnoS(r,icomp,jcomp);
         break;
       case PAIR_YUKAWA_CS:
-        u = uYUKAWA_ATT_CS(r,icomp,jcomp);  
+        u = uYUKAWA_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_LJandYUKAWA_CS:
-        u = uLJandYUKAWA_ATT_CS(r,icomp,jcomp);  
+        u = uLJandYUKAWA_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_r12andYUKAWA_CS:
-        u = ur12andYUKAWA_ATT_CS(r,icomp,jcomp);  
+        u = ur12andYUKAWA_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_r18andYUKAWA_CS:
-        u = ur18andYUKAWA_ATT_CS(r,icomp,jcomp);  
+        u = ur18andYUKAWA_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_rNandYUKAWA_CS:
-        u = urNandYUKAWA_ATT_CS(r,icomp,jcomp);  
+        u = urNandYUKAWA_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_EXP_CS:
-        u = uEXP_ATT_CS(r,icomp,jcomp);  
+        u = uEXP_ATT_CS(r,icomp,jcomp);
         break;
       case PAIR_SW:
-        u = uSW_ATT_CS(r,icomp,jcomp);  
+        u = uSW_ATT_CS(r,icomp,jcomp);
+        break;
+      case PAIR_EQT:
+        u = uEQT_ATT_CS(r,icomp,jcomp);
         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_ATT_CS_switch typePairPot=%d\n",typePairPot);
@@ -273,8 +279,8 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
   return u;
 }
 /******************************************************************************/
-/* pairPot_ATT_noCS_switch:  switch to choose the correct full pair 
-          potential (no cut and shift) used in setting up integration stencils 
+/* pairPot_ATT_noCS_switch:  switch to choose the correct full pair
+          potential (no cut and shift) used in setting up integration stencils
           for mean field DFT calculations. */
 double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
 {
@@ -308,7 +314,10 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
         break;
       case PAIR_SW:
         u = uSW_ATT_noCS(r,icomp,jcomp);
-        break;	  
+        break;
+      case PAIR_EQT:
+        u = uEQT_ATT_noCS(r,icomp,jcomp);
+        break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_ATT_noCS_switch typePairPot=%d\n",typePairPot);
          exit(-1);
@@ -317,7 +326,7 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
   return u;
 }
 /******************************************************************************/
-/* pairPot_integral_switch:  switch to choose the correct integrated MFDFT 
+/* pairPot_integral_switch:  switch to choose the correct integrated MFDFTk
            pair potential (e.g. only the attractive part of the 12-6 potential)
            for setting up the integration stencils for DFT calculations. */
 double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
@@ -352,6 +361,9 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
          break;
       case PAIR_SW:
          u = uSW_Integral(r,icomp,jcomp);
+         break;
+      case PAIR_EQT:
+         u = uEQT_Integral(r,icomp,jcomp);
          break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_integral_switch typePairPot=%d\n",typePairPot);

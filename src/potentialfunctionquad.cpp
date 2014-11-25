@@ -61,3 +61,16 @@ double PotentialFunctionQUAD::CalculateDF(const double r) const {
   }
 
 }
+
+double PotentialFunctionQUAD::CalculateIntR2F(const double r) const {
+
+  if (r >= _min && r <= _cut_off) {
+    return (1.0/30.0)*_lam(0)*r*r*r*(6.0*r*r - 15.0*_cut_off*r +
+                                     10.0*_cut_off*_cut_off)
+      + (1.0/12.0)*_lam(1)*r*r*r*( 3.0*r - 4.0*_cut_off )
+      + (1.0/3.0)*_lam(2)*r*r*r;
+  } else {
+    return 0.0;
+  }
+
+}

@@ -25,6 +25,9 @@ class PotentialFunctionCBSPL : public PotentialFunction {
   // first derivative w.r.t. r
   double CalculateDF(const double r) const;
 
+  /// \brief calculate integrant r^2 * f(r) dr
+  double CalculateIntR2F(const double r) const;
+
   int getIndx( const double r) const;
 
   double getRbreak(const int i ) const { return _rbreak(i); }
@@ -39,6 +42,8 @@ class PotentialFunctionCBSPL : public PotentialFunction {
 
   ub::matrix<double> _M;
   ub::vector<double> _rbreak;
+
+  double IntR2F(const int indx, const double r) const;
 };
 
 #endif

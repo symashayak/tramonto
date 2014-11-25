@@ -74,6 +74,9 @@ class PotentialFunction {
   // first derivative w.r.t. r
   virtual double CalculateDF( const double r) const = 0;
 
+  /// \brief calculate integrant r^2 * f(r) dr
+  virtual double CalculateIntR2F(const double r) const = 0;
+
  protected:
 
   PotentialFunction(const string& type,

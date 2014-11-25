@@ -41,6 +41,7 @@ extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_CoreATT_R;
 extern int Iwrite_screen;
 extern int WallType[NWALL_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 
 #ifdef __cplusplus

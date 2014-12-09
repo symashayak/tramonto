@@ -46,37 +46,37 @@ void PotentialFunction::SavePotTab(const string& filename,
                                    const double step,
                                    const double rmin, const double rcut){
 
-  // int ngrid = (int) ((rcut - rmin) / step + 1.00000001);
+  int ngrid = (int) ((rcut - rmin) / step + 1.00000001);
 
-  // Table pot_tab;
-  // pot_tab.SetHasYErr(false);
-  // pot_tab.resize(ngrid, false);
+  votca::tools::Table pot_tab;
+  pot_tab.SetHasYErr(false);
+  pot_tab.resize(ngrid, false);
 
-  // double r_init;
-  // int i;
-  // char flag;
-  // for (r_init = rmin, i = 0; i < ngrid - 1; r_init += step) {
+  double r_init;
+  int i;
+  char flag;
+  for (r_init = rmin, i = 0; i < ngrid - 1; r_init += step) {
 
-  //     // put point, result, flag at point out_x into the table
+    // put point, result, flag at point out_x into the table
 
-  //   if( r_init < _min || r_init > _cut_off )
-  //     flag = 'o';
-  //   else
-  //     flag = 'i';
+    if( r_init < _min || r_init > _cut_off )
+      flag = 'o';
+    else
+      flag = 'i';
 
-  //     pot_tab.set(i++, r_init, CalculateF(r_init), flag);
+    pot_tab.set(i++, r_init, CalculateF(r_init), flag);
 
-  // }
+  }
 
-  // if( rcut < _min || rcut > _cut_off )
-  //   flag = 'o';
-  // else
-  //   flag = 'i';
+  if( rcut < _min || rcut > _cut_off )
+    flag = 'o';
+  else
+    flag = 'i';
 
-  // pot_tab.set(i, rcut, CalculateF(rcut), flag);
+  pot_tab.set(i, rcut, CalculateF(rcut), flag);
 
-  // // save table in the file
-  // pot_tab.Save(filename);
+  // save table in the file
+  pot_tab.Save(filename);
 
 }
 

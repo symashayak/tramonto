@@ -50,7 +50,6 @@ double uYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,dou
 double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
 double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);
 double uLJ12_6_DERIV1D(double r,double x,double sigma,double eps,double rcut);
-double uEQT_DERIV1D(double r,double x,int flag,int i,int j);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 void uSW_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uEXP_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
@@ -62,7 +61,6 @@ void uYUKAWA_CS_setparams(int context,int i,int j,double *param1,double *param2,
 void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uCOULOMB_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uLJ12_6_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
-void uEQT_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5,double *param6);
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,8 +101,20 @@ double uCOULOMB_CS(double r,double z1,double z2,double rcut);
 double uLJ12_6_CS(double r,double sigma,double eps,double rcut);
 #define PAIR_LJ12_6_CS        0
 
-// \todo add B-spline stuff here
 #define PAIR_EQT          10
-double uEQT(double r,int flag,int i,int j);
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void uEQT_setparams(int context,int i,int j,double *param1,double *param2,double *param3,
+                      double *param4,double *param5,double *param6);
+  double uEQT(double r,int flag,double i,double j);
+  double uEQT_DERIV1D(double r,double x,int flag,double i,double j);
+  double uEQT_Integral(double r,int i,int j);
+  double uEQT_ATT_CS(double r,int i,int j);
+  double uEQT_ATT_noCS(double r,int i,int j);
+  void uEQT_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
+#ifdef __cplusplus
+}
+#endif
 
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);

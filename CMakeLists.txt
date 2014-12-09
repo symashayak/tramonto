@@ -97,6 +97,10 @@ IF(NOT CMAKE_C_FLAGS)
   SET(CMAKE_C_FLAGS ${Trilinos_C_COMPILER_FLAGS})
 ENDIF()
 
+# votca tools required for eqtinteractions
+FIND_PACKAGE(VOTCA_TOOLS REQUIRED)
+include_directories(${VOTCA_TOOLS_INCLUDE_DIRS})
+
 #IF(NOT CMAKE_Fortran_FLAGS)
 #  MESSAGE("Setting Fortran compiler flags.")
 #  SET(CMAKE_Fortran_FLAGS ${Trilinos_Fortran_COMPILER_FLAGS})

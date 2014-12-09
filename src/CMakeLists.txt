@@ -146,6 +146,7 @@ set(common_h
   potentialfunction.hpp
   potentialfunctioncbspl.hpp
   potentialfunctionquad.hpp
+  potentialfunctionlj.hpp
   eqtinteraction.hpp
   dft_pairPot_EQT.h
 	dft_pairPot_SW.h
@@ -306,6 +307,7 @@ set(common_cxx
   potentialfunction.cpp
   potentialfunctioncbspl.cpp
   potentialfunctionquad.cpp
+  potentialfunctionlj.cpp
   eqtinteraction.cpp
   dft_pairPot_EQT.cpp
 	)
@@ -611,7 +613,7 @@ add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx
 #necessary fix is applied to Trilinos
 add_executable(dft_exec dft_maindriver.c)
 target_link_libraries(dft_exec dft ${Tramonto_Trilinos_LIBRARIES}
-${Trilinos_TPL_LIBRARIES} )
+${Trilinos_TPL_LIBRARIES} ${VOTCA_TOOLS_LIBRARIES})
 
 INSTALL(TARGETS dft DESTINATION lib)
 INSTALL(TARGETS dft_exec DESTINATION bin)

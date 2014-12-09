@@ -8,27 +8,24 @@ PotentialFunctionQUAD::PotentialFunctionQUAD(const double min_,
 }
 
 void PotentialFunctionQUAD::setParam(string filename) {
+  /* input parameter table should contain 5 entries
+   * rmin,rcut,a0,a1,a2
+   */
+  votca::tools::Table param;
+  param.Load(filename);
 
-  // Table param;
-  // param.Load(filename);
-
-  // if( param.size() != _lam.size()) {
-
-  //     throw std::runtime_error("Potential parameters size mismatch!\n"
-  //             "Check input parameter file \""
-  //             + filename + "\" \nThere should be "
-  //             + boost::lexical_cast<string>( _lam.size() ) + " parameters");
-  // } else {
-  //     for( int i = 0; i < _lam.size(); i++)
-  //         _lam(i) = param.y(i);
-
-  // }
-  // _min = param.y(0);
-  // _max = param.y(1);
-  // _lam(0) = param.y(2);
-  // _lam(1) = param.y(3);
-  // _lam(2) = param.y(4);
-
+  if( param.size() != 5) {
+    throw std::runtime_error("Potential parameters size mismatch!\n"
+                             "Check input parameter file \""
+                             + filename + "\" \nThere should be "
+                             + boost::lexical_cast<string>(5) + " parameters");
+  } else {
+    _min = param.y(0);
+    _cut_off = param.y(1);
+    _lam(0) = param.y(2);
+    _lam(1) = param.y(3);
+    _lam(2) = param.y(4);
+  }
 }
 
 double PotentialFunctionQUAD::CalculateF(const double r) const {

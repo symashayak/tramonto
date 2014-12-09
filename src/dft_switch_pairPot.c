@@ -77,7 +77,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
         u = uSW(r,param1,param2,param3);
         break;
       case PAIR_EQT:
-        u = uEQT(r,(int)param1,(int)param2,(int)param3);
+        u = uEQT(r,param4,param5,param6);
         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE)printf("problems with your selection of typePairPotin pairPot_switch: typePairPot=%d\n",typePairPot);
@@ -125,7 +125,7 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,
         uSW_setparams(context,i,j,param1,param2,param3);
         break;
       case PAIR_EQT:
-        uEQT_setparams(context,i,j,param1,param2,param3);
+        uEQT_setparams(context,i,j,param1,param2,param3,param4,param5,param6);
         break;
       default:
         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPotparams_switch typePairPot=%d\n",typePairPot);
@@ -174,7 +174,7 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         uderiv = uSW_DERIV1D(r,x,param1,param2,param3);
         break;
       case PAIR_EQT:
-        uderiv = uEQT_DERIV1D(r,x,(int)param1,(int)param2,(int)param3);
+        uderiv = uEQT_DERIV1D(r,x,param4,param5,param6);
         break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_deriv_switch typePairPot=%d\n",typePairPot);
@@ -364,6 +364,7 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
          break;
       case PAIR_EQT:
          u = uEQT_Integral(r,icomp,jcomp);
+         printf("\n uint returned from uEQT %lf\n",u);
          break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_integral_switch typePairPot=%d\n",typePairPot);

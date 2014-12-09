@@ -40,16 +40,27 @@ extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_CoreATT_R;
 extern int Iwrite_screen;
-extern int WallType[NWALL_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
+extern int WallType[NWALL_MAX];
+extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+
+extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void uEQT_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
-  double uEQT(double r,int flag,int i,int j);
-  double uEQT_DERIV1D(double r,double x,int flag,int i,int j);
+  void uEQT_setparams(int context,int i,int j,double *param1,double *param2,double *param3,
+                      double *param4,double *param5,double *param6);
+  double uEQT(double r,int flag,double i,double j);
+  double uEQT_DERIV1D(double r,double x,int flag,double i,double j);
   double uEQT_Integral(double r,int i,int j);
   double uEQT_ATT_CS(double r,int i,int j);
   double uEQT_ATT_noCS(double r,int i,int j);

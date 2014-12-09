@@ -14,12 +14,16 @@ EQTInteraction::EQTInteraction(const string& type1,
 
   string filename;
 
-  filename = _name + "_quad.dat";
-  _uquad = new PotentialFunctionQUAD();
-  _uquad->setParam(filename);
+  // filename = _name + "_quad.dat";
+  // _uquad = new PotentialFunctionQUAD();
+  // _uquad->setParam(filename);
+
+  // filename = _name + "_spl.dat";
+  // _uspl = new PotentialFunctionCBSPL();
+  // _uspl->setParam(filename);
 
   filename = _name + "_spl.dat";
-  _uspl = new PotentialFunctionCBSPL();
+  _uspl = new PotentialFunctionLJ();
   _uspl->setParam(filename);
 }
 
@@ -33,13 +37,16 @@ void EQTInteraction::SavePotTab(const string& filename,
 }
 
 double EQTInteraction::ComputeU(double r)const{
-  return _uquad->CalculateF(r) + _uspl->CalculateF(r);
+  // return _uquad->CalculateF(r) + _uspl->CalculateF(r);
+  return _uspl->CalculateF(r);
 }
 
 double EQTInteraction::ComputeDU(double r)const{
-  return (_uquad->CalculateDF(r) + _uspl->CalculateDF(r));
+  // return (_uquad->CalculateDF(r) + _uspl->CalculateDF(r));
+  return _uspl->CalculateDF(r);
 }
 
 double EQTInteraction::ComputeIntR2U(double r)const{
-  return (_uquad->CalculateIntR2F(r) + _uspl->CalculateIntR2F(r));
+  // return (_uquad->CalculateIntR2F(r) + _uspl->CalculateIntR2F(r));
+  return _uspl->CalculateIntR2F(r);
 }

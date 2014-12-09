@@ -75,12 +75,12 @@ double StenTheta_uattr_sten_vol(int i,int j)
           r_min = rCore_right;
           vol_sten = pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
        }
-       else{ 
+       else{
           r_min = rCore_right;
-          /* volume of stencil from r_min to r_cut -- adjusted for cut and shift*/
-          vol_sten = (pairPot_integral_switch(r_cut,i,j,Type_pairPot) 
+          /* volume of stencil from r_min to r_cut -- adjusted for cut and shift */
+          vol_sten = (pairPot_integral_switch(r_cut,i,j,Type_pairPot)
                       - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot))
-                - (pairPot_integral_switch(r_min,i,j,Type_pairPot) 
+                - (pairPot_integral_switch(r_min,i,j,Type_pairPot)
                       - (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot));
        }
    }

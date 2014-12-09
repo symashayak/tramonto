@@ -16,54 +16,38 @@ PotentialFunctionCBSPL::PotentialFunctionCBSPL(const int nlam_,
 }
 
 void PotentialFunctionCBSPL::setParam(string filename) {
+  votca::tools::Table param;
+  param.Load(filename);
+  int nknots = param.size();
 
-  // Table param;
-  // param.Load(filename);
-
-  // _lam.clear();
-
-  // if( param.size() != _lam.size()) {
-
-  //   throw std::runtime_error("Potential parameters size mismatch!\n"
-  //                            "Check input parameter file \""
-  //                            + filename + "\" \nThere should be "
-  //                            + boost::lexical_cast<string>( _lam.size() ) + " parameters");
-  // } else {
-
-  //   for( int i = 0; i < _lam.size(); i++){
-
-  //     _rbreak(i) = param.x(i);
-  //     _lam(i) = param.y(i);
-
-  //   }
-
-  // }
-  int nlam;// = param.size();
-  _lam.resize(nlam);
+  _nbreak = nknots -2;
+  _lam.resize(nknots,false);
   _lam.clear();
-  _nbreak = nlam - 2;
-  _dr = (_cut_off )/( double (nlam - 3) );
-
-  // break point locations
-  // since ncoeff = nbreak +2 , r values for last two coefficients are also
-  // computed
-  _rbreak.resize(nlam, false);
+  _rbreak.resize(nknots,false);
   _rbreak.clear();
 
-  for (int i = 0; i < nlam; i++)
-    _rbreak(i) = i * _dr;
+  _min = param.x(0);
+  for( int i = 0; i < _lam.size(); i++){
+    _rbreak(i) = param.x(i);
+    _lam(i) = param.y(i);
+  }
+  // cut-off is the last break point, i.e., nknots-2 th point
+  _cut_off = param.x(nknots-3);
+  _dr = _rbreak(1) - _rbreak(0);
+
+  SavePotTab("test.dat",0.01,_min,_cut_off);
 }
 
 void PotentialFunctionCBSPL::SaveParam(const string& filename){
 
-  // Table param;
-  // param.SetHasYErr(false);
-  // param.resize(_lam.size(), false);
+  votca::tools::Table param;
+  param.SetHasYErr(false);
+  param.resize(_lam.size(), false);
 
-  // for (int i = 0; i < _lam.size(); i++)
-  //   param.set(i, _rbreak(i), _lam(i), 'i');
+  for (int i = 0; i < _lam.size(); i++)
+    param.set(i, _rbreak(i), _lam(i), 'i');
 
-  // param.Save(filename);
+  param.Save(filename);
 
 }
 
@@ -147,7 +131,7 @@ double PotentialFunctionCBSPL::CalculateIntR2F (const double r) const {
    * This approach still gives accurate values for integration from r1 to r2, because
    * int(r2,r1) = int(r2,_min)-int(r1,_min)
    */
-
+  cout << _min << "\t" << r << endl;
   double r1_ = _min;
   double r2_ = r;
   // interval in which r1_ lies
@@ -198,4 +182,4 @@ double PotentialFunctionCBSPL::IntR2F(const int indx, const double r) const{
   B(2) = _lam(indx + 2);
   B(3) = _lam(indx + 3);
   return ub::inner_prod(B, RM);
-} 
+}

@@ -42,7 +42,7 @@
 double uLJ12_6_CS(double r,double sigma, double eps, double rcut)
 {
   double u;
-  
+
   if (r <= rcut) {
      u = ( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) -
             ( POW_DOUBLE_INT(sigma/r,6) - POW_DOUBLE_INT(sigma/rcut,6) );

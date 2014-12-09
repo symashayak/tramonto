@@ -10,6 +10,7 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/lexical_cast.hpp>
+#include <votca/tools/table.h>
 #include <cstdlib>
 #include <math.h>
 #include <iostream>

@@ -10,13 +10,13 @@
 #include <string>
 #include "potentialfunctioncbspl.hpp"
 #include "potentialfunctionquad.hpp"
+#include "potentialfunctionlj.hpp"
 
 using namespace std;
 
 class EQTInteraction {
 
 public:
-
   EQTInteraction() {}
   EQTInteraction(const string& type1,const string& type2);
   ~EQTInteraction() {}
@@ -31,11 +31,13 @@ public:
   double ComputeIntR2U(double r)const;
   void SavePotTab(const string& filename, const double step,
                   const double rmin, const double rcut) const;
+  PotentialFunction* getuspl(){return _uspl;}
+  PotentialFunction* getuquad(){return _uquad;}
 private:
   string _name;
   string _type1,_type2;
-  PotentialFunctionQUAD* _uquad;
-  PotentialFunctionCBSPL* _uspl;
+  PotentialFunction* _uquad;
+  PotentialFunction* _uspl;
 };
 
 #endif // EQTINTERACTION_H

@@ -183,7 +183,6 @@ double uEQT_ATT_noCS(double r,int i,int j){
 double uEQT_Integral(double r,int i,int j){
   double uatt_int;
   uatt_int = 4.0 * PI * u_ff(i,j)->ComputeIntR2U(r);
-  cout << "\n uint computed in uEQT " << uatt_int << endl;
   return uatt_int;
 }
 

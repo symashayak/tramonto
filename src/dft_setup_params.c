@@ -239,8 +239,9 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
    /*********************************************************************/
 
    if (Length_ref>0.0) make_length_params_dimensionless();
+   if (Temp>0.0) make_energy_params_dimensionless();
    if (Temp>0.0 && Flag_mV_elecpot){
-      make_energy_params_dimensionless();
+      /* make_energy_params_dimensionless(); */
       if (Type_coul != NONE || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB) {
           Potential_ref=1000.*KBOLTZ*Temp/E_CONST;  /* reference potential in mV */
           make_elecPot_params_dimensionless(); 

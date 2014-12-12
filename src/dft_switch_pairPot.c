@@ -364,7 +364,6 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
          break;
       case PAIR_EQT:
          u = uEQT_Integral(r,icomp,jcomp);
-         printf("\n uint returned from uEQT %lf\n",u);
          break;
       default:
          if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_integral_switch typePairPot=%d\n",typePairPot);

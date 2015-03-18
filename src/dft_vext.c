@@ -589,8 +589,11 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
 
              pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID,icomp,RealWall_Images[iwall],
                                   &param1,&param2,&param3,&param4,&param5,&param6);
-             vext = integrate_potential(Vext_PotentialID[iwall_type],param1,param2,param3,param4,param5,param6,
-                       ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
+             /* vext = integrate_potential(Vext_PotentialID[iwall_type],param1,param2,param3,param4,param5,param6, */
+             /*           ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f); */
+             vext = Rho_w[iwall_type] * integrate_potential(Vext_PotentialID[iwall_type],
+                                                            param1,param2,param3,param4,param5,param6,
+                                                            ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 
 	     
              Vext[loc_inode][icomp] += vext;

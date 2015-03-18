@@ -141,3 +141,5 @@ extern int Proc;
 extern int Proc;
 #endif
 void setup_external_field_n(int **nelems_w_per_w,int ***elems_w_per_w);
+#define NWALL_MAX_TYPE 20 
+extern double Rho_w[NWALL_MAX_TYPE];

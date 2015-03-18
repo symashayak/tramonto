@@ -24,3 +24,4 @@ double get_wt_from_sten(int typePot,double r,double param1,double param2,double 
 extern double Esize_x[NDIM_MAX];
 extern int Ndim;
 double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+
